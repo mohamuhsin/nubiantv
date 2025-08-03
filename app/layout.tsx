@@ -21,8 +21,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Bamzee Engineering Company",
-  description: "Think Safety, Think Bamzee",
+  title: "Nubian TV",
+  description: "Asas Ta Nubi",
 };
 
 export default function RootLayout({
