@@ -4,7 +4,8 @@
   --background: #1a1717;
   --foreground: #171717;
 
-  --font-sans: var(--font-poppins), var(--font-geist-sans), Arial, Helvetica,
+  /* Change font-sans to Montserrat */
+  --font-sans: var(--font-montserrat), var(--font-geist-sans), Arial, Helvetica,
     sans-serif;
   --font-mono: var(--font-geist-mono);
 }

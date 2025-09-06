@@ -1,15 +1,18 @@
 import type { Metadata } from "next";
-import { Poppins, Geist, Geist_Mono } from "next/font/google";
+import { Montserrat, Geist, Geist_Mono } from "next/font/google";
+import Navbar from "./components/Navbar/navbar";
 
 import "./globals.css";
 
-const poppins = Poppins({
-  variable: "--font-poppins",
+// Use Montserrat as your primary font
+const montserrat = Montserrat({
+  variable: "--font-montserrat",
   subsets: ["latin"],
   weight: ["300", "400", "500", "600", "700", "800", "900"],
   display: "swap",
 });
 
+// Optional fonts
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
@@ -33,9 +36,12 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${poppins.variable} ${geistSans.variable} ${geistMono.variable}`}
+      className={`${montserrat.variable} ${geistSans.variable} ${geistMono.variable}`}
     >
-      <body className="antialiased">{children}</body>
+      <body className="antialiased">
+        <Navbar />
+        {children}
+      </body>
     </html>
   );
 }
