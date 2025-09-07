@@ -13,7 +13,7 @@ export default function Logo() {
           height={80}
           priority
           sizes="(max-width: 768px) 50vw, (max-width: 1024px) 25vw, 120px"
-          className="w-auto h-auto max-h-12 md:max-h-14 lg:max-h-16 object-contain"
+          className="w-auto h-auto max-h-16 sm:max-h-20 md:max-h-14 lg:max-h-16 object-contain"
         />
       </Link>
     </div>
