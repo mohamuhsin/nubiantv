@@ -1,7 +1,7 @@
 "use client";
 
 import NavCards from "./nav-cards";
-import YoutubePreview from "./youtube-preview";
+// import YoutubePreview from "./youtube-preview";
 
 export default function HeroContent() {
   return (

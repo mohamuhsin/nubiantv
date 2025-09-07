@@ -62,7 +62,7 @@ export default function ContactInfo(): JSX.Element {
             "flex items-center gap-3 text-white hover:text-[#ff7e1c] transition duration-300";
 
           const iconWrapperClasses =
-            "w-8 h-8 flex items-center justify-center rounded-full bg-white text-[#12114a] hover:bg-[#ff7e1c] hover:text-white transition duration-300 text-[16px]";
+            "w-8 h-8 flex items-center justify-center rounded-full bg-white text-[#030268] hover:bg-[#ff7e1c] hover:text-white transition duration-300 text-[16px]";
 
           return (
             <motion.div
