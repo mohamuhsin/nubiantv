@@ -1,18 +1,8 @@
-import plugin from "tailwindcss/plugin";
-import { blackA, mauve, violet, indigo, purple } from "@radix-ui/colors";
-
 /** @type {import('tailwindcss').Config} */
 const config = {
   content: ["./App.jsx", "./components/**/*.{js,jsx,ts,tsx}"],
   theme: {
     extend: {
-      colors: {
-        ...blackA,
-        ...mauve,
-        ...violet,
-        ...purple,
-        ...indigo,
-      },
       keyframes: {
         enterFromRight: {
           from: { opacity: "0", transform: "translateX(200px)" },
@@ -59,15 +49,7 @@ const config = {
       },
     },
   },
-  plugins: [
-    plugin(({ matchUtilities }) => {
-      matchUtilities({
-        perspective: (value) => ({
-          perspective: value,
-        }),
-      });
-    }),
-  ],
+  plugins: [],
 };
 
 export default config;
