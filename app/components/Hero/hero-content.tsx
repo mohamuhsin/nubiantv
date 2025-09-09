@@ -1,7 +1,7 @@
 "use client";
 
 import NavCards from "./nav-cards";
-// import YoutubePreview from "./youtube-preview";
+import WatchLiveButton from "./watchLive";
 
 export default function HeroContent() {
   return (
@@ -10,7 +10,7 @@ export default function HeroContent() {
       <div className="flex flex-col items-center md:items-start text-center md:text-left md:w-[60%] gap-6">
         {/* Heading */}
         <h1 className="whitespace-nowrap text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-extrabold leading-snug md:leading-tight text-white overflow-x-auto">
-          Nubian TV, Asas Ta Nubi.
+          NUBIAN TV, ASAS TA NUBI.
         </h1>
 
         {/* Navigation Cards */}
@@ -21,7 +21,7 @@ export default function HeroContent() {
 
       {/* Right section: YouTube preview */}
       <div className="mt-8 md:mt-0 md:w-[40%] flex justify-center">
-        {/* <YoutubePreview /> */}
+        <WatchLiveButton />
       </div>
     </div>
   );
