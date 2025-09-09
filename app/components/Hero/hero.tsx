@@ -5,12 +5,16 @@ import HeroContent from "./hero-content";
 
 export default function Hero() {
   return (
-    <section className="relative w-full min-h-[calc(100vh-4rem)] overflow-hidden pt-16">
-      {/* Background slider */}
-      <HeroSlider />
+    <section className="relative w-full min-h-[80vh] md:min-h-[90vh] lg:min-h-screen overflow-hidden">
+      {/* Background slider shifted below navbar */}
+      <div className="absolute inset-0 top-16">
+        <HeroSlider />
+      </div>
 
-      {/* Overlay content */}
-      <HeroContent />
+      {/* Overlay content with same offset */}
+      <div className="relative pt-16">
+        <HeroContent />
+      </div>
     </section>
   );
 }

@@ -1,30 +1,53 @@
 "use client";
 
 import { Swiper, SwiperSlide } from "swiper/react";
+import { Autoplay, EffectFade } from "swiper/modules";
 import "swiper/css";
+import "swiper/css/effect-fade";
+import Image from "next/image";
 
 const slides = [
-  "/images/slide1.jpg",
-  "/images/slide2.jpg",
-  "/images/slide3.jpg",
+  { src: "/nubiantv1.jpeg", alt: "", title: "" },
+  { src: "/nubiantv2.jpeg", alt: "", title: "" },
+  { src: "/nubiantv9.jpeg", alt: "", title: "" },
 ];
 
-export default function HeroSlider() {
+export default function heroSlider() {
   return (
-    <div className="absolute inset-0">
-      <Swiper loop autoplay className="h-full w-full">
-        {slides.map((src, idx) => (
-          <SwiperSlide key={idx}>
-            <div
-              className="h-full w-full bg-cover bg-center"
-              style={{ backgroundImage: `url(${src})` }}
-            >
-              {/* dark overlay */}
-              <div className="absolute inset-0 bg-black/50" />
-            </div>
-          </SwiperSlide>
-        ))}
-      </Swiper>
-    </div>
+    <Swiper
+      modules={[Autoplay, EffectFade]}
+      slidesPerView={1}
+      loop
+      autoplay={{ delay: 3000, disableOnInteraction: false }}
+      effect="fade"
+      speed={1000}
+      className="w-full h-[90vh] sm:h-[100vh] md:h-[125vh] lg:h-[125vh]"
+      aria-label="Hero image slider"
+      role="region"
+    >
+      {slides.map(({ src, alt, title }, index) => (
+        <SwiperSlide key={index}>
+          <div className="relative w-full h-full">
+            <Image
+              src={src}
+              alt={alt}
+              fill
+              className="object-cover"
+              priority={index === 0}
+              sizes="100vw"
+            />
+            <div className="absolute inset-0 bg-black/70 pointer-events-none" />
+            {title && (
+              <div
+                className="absolute bottom-10 left-10 text-white text-2xl font-semibold drop-shadow-lg"
+                aria-live="polite"
+              >
+                {title}
+              </div>
+            )}
+          </div>
+        </SwiperSlide>
+      ))}
+    </Swiper>
   );
 }
