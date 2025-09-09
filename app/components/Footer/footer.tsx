@@ -15,8 +15,8 @@ export default function Follow(): JSX.Element {
   const currentYear: number = new Date().getFullYear();
 
   const quickLinks: QuickLink[] = [
-    { href: "/about", label: "About Us" },
-    { href: "/services", label: "Services" },
+    { href: "/charity", label: "Charity" },
+    { href: "/awards", label: "Awards" },
   ];
 
   return (
@@ -90,8 +90,7 @@ export default function Follow(): JSX.Element {
       <footer className="mt-16 border-t border-gray-700 px-6 sm:px-10 lg:px-16">
         <div className="py-6 flex items-center justify-center text-center">
           <p className="text-base sm:text-lg md:text-xl text-gray-400 leading-relaxed max-w-3xl mx-auto">
-            © {currentYear} Nubian Tv Live. All rights reserved. | Site managed
-            by{" "}
+            © {currentYear} Nubian Tv. All rights reserved. App by{" "}
             <Link
               href="https://iventics.com"
               className="font-semibold hover:text-white hover:underline transition-colors"

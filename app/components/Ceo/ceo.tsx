@@ -6,8 +6,8 @@ export default function CEOMessage() {
   return (
     <section className="w-full py-12 sm:py-16 bg-gray-50 flex flex-col items-center">
       {/* Heading */}
-      <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-extrabold text-center text-gray-900 mb-6 sm:mb-10 px-2 sm:px-4 md:px-6 leading-snug">
-        A WORD FROM OUR CEO
+      <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-extrabold text-center text-gray-900 mb-14 sm:mb-14 px-2 sm:px-4 md:px-6 leading-snug">
+        MESSAGE FROM OUR CEO
       </h2>
 
       {/* Video Wrapper */}
