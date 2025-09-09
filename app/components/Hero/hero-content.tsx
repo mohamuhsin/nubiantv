@@ -9,7 +9,7 @@ export default function HeroContent() {
       {/* Left section: Heading + Nav Cards */}
       <div className="flex flex-col items-center md:items-start text-center md:text-left md:w-[60%] gap-6">
         {/* Heading */}
-        <h1 className="whitespace-nowrap text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-5xl font-extrabold leading-snug md:leading-tight text-white overflow-x-auto">
+        <h1 className="whitespace-nowrap text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-extrabold leading-snug md:leading-tight text-white overflow-x-auto">
           Nubian TV, Asas Ta Nubi.
         </h1>
 
