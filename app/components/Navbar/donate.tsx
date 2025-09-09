@@ -6,7 +6,7 @@ import { JSX } from "react";
 export function LiveButton(): JSX.Element {
   return (
     <Link
-      href="https://www.youtube.com/@pearlfmnews8016/videos"
+      href="#s"
       target="_blank"
       rel="noopener noreferrer"
       aria-label="Watch Pearl FM live stream on YouTube"

@@ -3,6 +3,7 @@ import { Montserrat, Geist, Geist_Mono } from "next/font/google";
 import Navbar from "./components/Navbar/navbar";
 
 import "./globals.css";
+import Follow from "./components/Footer/footer";
 
 // Use Montserrat as your primary font
 const montserrat = Montserrat({
@@ -41,6 +42,7 @@ export default function RootLayout({
       <body className="antialiased">
         <Navbar />
         {children}
+        <Follow />
       </body>
     </html>
   );
