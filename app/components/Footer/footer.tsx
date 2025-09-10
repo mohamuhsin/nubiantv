@@ -15,8 +15,10 @@ export default function Follow(): JSX.Element {
   const currentYear: number = new Date().getFullYear();
 
   const quickLinks: QuickLink[] = [
+    { href: "/events", label: "Events" },
     { href: "/charity", label: "Charity" },
     { href: "/awards", label: "Awards" },
+    { href: "/services", label: "Services" },
   ];
 
   return (
@@ -33,7 +35,11 @@ export default function Follow(): JSX.Element {
           >
             Let&apos;s Connect
           </h2>
-
+          <p className="text-gray-400 text-base sm:text-lg md:text-xl mb-10 max-w-prose">
+            Nubian TV is a platform for the Nubian community worldwide,
+            showcasing our heritage, empowering voices, and celebrating our
+            identity.
+          </p>
           <div className="flex flex-wrap gap-6 sm:gap-8">
             <SocialIcon
               href="https://www.tiktok.com/@nubiantv"
