@@ -36,26 +36,26 @@ export default function Follow(): JSX.Element {
 
           <div className="flex flex-wrap gap-6 sm:gap-8">
             <SocialIcon
-              href="https://www.tiktok.com/@pearlfmradio?_t=ZM-8uNSv1MGmDV&_r=1"
+              href="https://www.tiktok.com/@nubiantv"
               icon={<FaTiktok />}
               label="Follow on TikTok"
               color="hover:text-[#69C9D0]"
             />
             <SocialIcon
-              href="https://www.facebook.com/share/14yxNZZ4ao/"
+              href="https://www.facebook.com/share/g/16xKa7PwTS/?mibextid=wwXIfr"
               icon={<FaFacebookF />}
               label="Follow on Facebook"
               color="hover:text-[#1877F2]"
             />
 
             <SocialIcon
-              href="https://www.youtube.com/@pearlfmnews8016/videos"
+              href="https://www.youtube.com/@akwine/videos"
               icon={<FaYoutube />}
               label="Subscribe on YouTube"
               color="hover:text-[#FF0000]"
             />
             <SocialIcon
-              href="https://www.instagram.com/pearlfmuganda?igsh=ZzZzODg5d2NycmZr"
+              href="https://www.instagram.com/nubian_tv_asas_ta_nubi?igsh=MWw3YTExdGJ3NTRqeA%3D%3D&utm_source=qr"
               icon={<FaInstagram />}
               label="Follow on Instagram"
               color="hover:text-[#E4405F]"

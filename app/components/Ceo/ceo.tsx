@@ -15,7 +15,7 @@ export default function CEOMessage() {
         {/* Parent container has the aspect ratio */}
         <div className="relative w-full max-w-6xl rounded-xl shadow-lg overflow-hidden bg-gray-50 pt-[75%] sm:pt-[56.25%] lg:pt-[45%]">
           <YouTube
-            videoId="3NuU1mse1aM"
+            videoId="PXueOW2TQoA"
             className="absolute top-0 left-0 w-full h-full rounded-xl"
             opts={{
               width: "100%",

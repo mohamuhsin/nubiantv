@@ -7,9 +7,10 @@ import "swiper/css/effect-fade";
 import Image from "next/image";
 
 const slides = [
-  { src: "/nubiantv1.jpeg", alt: "", title: "" },
-  { src: "/nubiantv2.jpeg", alt: "", title: "" },
-  { src: "/nubiantv9.jpeg", alt: "", title: "" },
+  { src: "/nubian.jpeg", alt: "", title: "" },
+  { src: "/nubiantv00.jpeg", alt: "", title: "" },
+  { src: "/nubiantv001.jpeg", alt: "", title: "" },
+  { src: "/nubiantv002.jpeg", alt: "", title: "" },
 ];
 
 export default function heroSlider() {
