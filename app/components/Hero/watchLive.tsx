@@ -7,7 +7,7 @@ export default function WatchLiveButton() {
   return (
     <div className="hidden sm:flex w-2/5 items-center justify-center">
       <Link
-        href="https://www.youtube.com/@akwine"
+        href="https://www.youtube.com/@akwine/videos"
         target="_blank"
         rel="noopener noreferrer"
         aria-label="Watch nubian Tv on YouTube"
