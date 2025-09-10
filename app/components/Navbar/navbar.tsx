@@ -9,7 +9,6 @@ import MobileMenu from "./mobilemenu";
 export default function Navbar(): JSX.Element {
   const [isMenuOpen, setIsMenuOpen] = useState<boolean>(false);
 
-  // Close menu on ESC key
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape") setIsMenuOpen(false);

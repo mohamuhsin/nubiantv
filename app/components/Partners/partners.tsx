@@ -28,7 +28,7 @@ export default function PartnersSection() {
       </p>
 
       {/* Partner Cards Grid */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-8 w-full max-w-6xl justify-items-center mb-8">
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-8 w-full max-w-6xl justify-items-center mb-14">
         {partners.map((logo, idx) => (
           <div
             key={idx}
@@ -40,13 +40,13 @@ export default function PartnersSection() {
               alt={`Partner ${idx + 1}`}
               width={800}
               height={800}
-              className="object-contain w-full h-full"
+              className="object-contain w-4/5 h-4/5"
             />
           </div>
         ))}
       </div>
 
-      {/* Become a Member Button */}
+      {/* Become a Partner Button */}
       <ReusableButton
         text="BECOME A PARTNER"
         href="https://wa.me/256700755257"
