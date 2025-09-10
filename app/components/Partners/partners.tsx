@@ -48,7 +48,7 @@ export default function PartnersSection() {
 
       {/* Become a Member Button */}
       <ReusableButton
-        text="BECOME A MEMBER"
+        text="BECOME A PARTNER"
         href="https://wa.me/256700755257"
         target="_blank"
       />
