@@ -1,32 +1,34 @@
 "use client";
 
 import Image from "next/image";
+import { ReusableButton } from "../Navbar/donate";
 
 export default function PartnersSection() {
   const partners = [
     "/partners/devon.png",
-    "/partners/nidat.jpeg",
+    "/partners/nidat.png",
     "/partners/empathy.png",
-    "/partners/shalila.jpeg",
+    "/partners/shalila.png",
     "/partners/devonfoods.png",
     "/partners/rashmedia.png",
+    "/partners/hanie.png",
   ];
 
   return (
-    <section className="w-full py-16 bg-white flex flex-col items-center">
+    <section className="w-full py-16 bg-white flex flex-col items-center px-4 sm:px-6 md:px-8">
       {/* Heading */}
       <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-extrabold text-center text-gray-900 mb-6">
         OUR PARTNERS
       </h2>
 
       {/* Description */}
-      <p className="text-center text-base sm:text-lg max-w-3xl mb-12 px-4 text-gray-700">
+      <p className="text-center text-base sm:text-lg max-w-3xl mb-12 text-gray-700">
         We are proud to collaborate with organizations that share our mission of
         connecting and empowering the Nubian community worldwide.
       </p>
 
       {/* Partner Cards Grid */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-8 px-4 sm:px-0 w-full max-w-6xl justify-items-center">
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-8 w-full max-w-6xl justify-items-center mb-8">
         {partners.map((logo, idx) => (
           <div
             key={idx}
@@ -43,6 +45,13 @@ export default function PartnersSection() {
           </div>
         ))}
       </div>
+
+      {/* Become a Member Button */}
+      <ReusableButton
+        text="BECOME A MEMBER"
+        href="https://wa.me/256700755257"
+        target="_blank"
+      />
     </section>
   );
 }
