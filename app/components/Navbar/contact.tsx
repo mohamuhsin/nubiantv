@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { motion, Variants } from "framer-motion";
 import { FaPhoneAlt, FaEnvelope, FaHome, FaTiktok } from "react-icons/fa";
-import { DonateButton } from "./donate";
+import { ReusableButton } from "./donate";
 import { JSX } from "react";
 
 // Define a type for contact items
@@ -113,7 +113,7 @@ export default function ContactInfo(): JSX.Element {
         variants={itemVariants}
         className="shrink-0 mt-4 md:mt-0"
       >
-        <DonateButton />
+        <ReusableButton text="DONATE NOW" href="#donate" target="_blank" />
       </motion.div>
     </motion.nav>
   );
