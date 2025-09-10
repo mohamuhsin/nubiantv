@@ -37,7 +37,7 @@ export default function heroSlider() {
               priority={index === 0}
               sizes="100vw"
             />
-            <div className="absolute inset-0 bg-black/70 pointer-events-none" />
+            <div className="absolute inset-0 bg-black/60 pointer-events-none" />
             {title && (
               <div
                 className="absolute bottom-10 left-10 text-white text-2xl font-semibold drop-shadow-lg"
