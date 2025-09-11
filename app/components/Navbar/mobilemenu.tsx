@@ -5,7 +5,7 @@ import { JSX } from "react";
 import ContactInfo from "./contact";
 
 interface MobileMenuProps {
-  onClose?: () => void; // optional callback if needed in future
+  onClose?: () => void;
 }
 
 export default function MobileMenu({ onClose }: MobileMenuProps): JSX.Element {
