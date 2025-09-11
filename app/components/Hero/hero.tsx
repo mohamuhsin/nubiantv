@@ -5,14 +5,14 @@ import HeroContent from "./hero-content";
 
 export default function Hero() {
   return (
-    <section className="relative w-full min-h-[80vh] md:min-h-[90vh] lg:min-h-screen overflow-hidden flex items-center justify-center">
+    <section className="relative w-full min-h-[80vh] md:min-h-[90vh] lg:min-h-screen overflow-hidden">
       {/* Background slider */}
-      <div className="absolute inset-0 w-full h-full">
+      <div className="absolute inset-0">
         <HeroSlider />
       </div>
 
       {/* Overlay content */}
-      <div className="relative z-10 w-full px-4 sm:px-6 lg:px-8 max-w-6xl">
+      <div className="absolute inset-0 flex items-center justify-center px-4">
         <HeroContent />
       </div>
     </section>
