@@ -1,4 +1,4 @@
-import Heading from "../components/Heading/heading";
+import Heading from "@/components/Heading/heading";
 
 export const metadata = {
   title: "charity",
