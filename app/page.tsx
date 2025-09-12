@@ -1,7 +1,7 @@
-import Hero from "./components/Hero/hero";
-import CEOMessage from "./components/Ceo/ceo";
-import SupportSection from "./components/Donate/donate";
-import PartnersSection from "./components/Partners/partners";
+import Hero from "@/components/Hero/hero";
+import CEOMessage from "@/components/Ceo/ceo";
+import SupportSection from "@/components/Donate/donate";
+import PartnersSection from "@/components/Partners/partners";
 
 export default function Home() {
   return (

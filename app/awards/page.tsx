@@ -1,11 +1,12 @@
-import Heading from "../components/Heading/heading";
+"use client";
 
-export const metadata = {
-  title: "Awards",
-  description: "Celebrating excellence within our community.",
-};
+import { useState } from "react";
+import Heading from "@/components/Heading/heading";
+import { CategorySearch } from "@/components/Filter/cat-filter";
 
 export default function AwardsPage() {
+  const [searchQuery, setSearchQuery] = useState("");
+
   return (
     <div className="min-h-screen flex flex-col">
       {/* Top Navigation */}
@@ -18,8 +19,15 @@ export default function AwardsPage() {
       />
 
       {/* Main Content */}
-      <main className="flex-grow px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
-        <section className="py-14">{/* Page content goes here */}</section>
+      <main className="flex-grow w-full">
+        <section className="py-14 px-4 sm:px-6 lg:px-8 w-full">
+          {/* Search Component */}
+          <div className="mb-10 w-full">
+            <CategorySearch value={searchQuery} onChange={setSearchQuery} />
+          </div>
+
+          {/* Later: Cards / Categories list */}
+        </section>
       </main>
     </div>
   );
