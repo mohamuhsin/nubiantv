@@ -17,28 +17,32 @@ export async function GET(req: Request) {
       req.headers.get("host") ||
       "unknown";
 
-    // --- 2. Apply rate limiting ---
-    try {
-      await rateLimiter.consume(ip); // consume 1 point per request
-    } catch {
-      return NextResponse.json(
-        { error: "Rate limit exceeded. Try again later." },
-        { status: 429 }
-      );
+    // --- 2. Apply rate limiting only if configured ---
+    if (rateLimiter) {
+      try {
+        await rateLimiter.consume(ip); // consume 1 point per request
+      } catch {
+        return NextResponse.json(
+          { error: "Rate limit exceeded. Try again later." },
+          { status: 429 }
+        );
+      }
     }
 
-    // --- 3. Try fetching cached data from Redis ---
-    try {
-      const cached = await redis.get(CACHE_KEY);
-      if (cached) {
-        return NextResponse.json(JSON.parse(cached), {
-          status: 200,
-          headers: { "Cache-Control": `public, max-age=${CACHE_TTL}` },
-        });
+    // --- 3. Try fetching cached data from Redis (if available) ---
+    if (redis) {
+      try {
+        const cached = await redis.get(CACHE_KEY);
+        if (cached) {
+          return NextResponse.json(JSON.parse(cached), {
+            status: 200,
+            headers: { "Cache-Control": `public, max-age=${CACHE_TTL}` },
+          });
+        }
+      } catch (cacheError) {
+        console.warn("Redis cache error:", cacheError);
+        // Continue without failing the request
       }
-    } catch (cacheError) {
-      console.warn("Redis cache error:", cacheError);
-      // Continue without failing the request
     }
 
     // --- 4. Connect to MongoDB ---
@@ -79,12 +83,14 @@ export async function GET(req: Request) {
       })
     );
 
-    // --- 7. Cache result in Redis (ignore cache errors) ---
-    redis
-      .set(CACHE_KEY, JSON.stringify(categoriesWithNominees), "EX", CACHE_TTL)
-      .catch((err) => {
-        console.warn("Redis cache set failed:", err);
-      });
+    // --- 7. Cache result in Redis if available ---
+    if (redis) {
+      redis
+        .set(CACHE_KEY, JSON.stringify(categoriesWithNominees), "EX", CACHE_TTL)
+        .catch((err) => {
+          console.warn("Redis cache set failed:", err);
+        });
+    }
 
     // --- 8. Return response ---
     return NextResponse.json(categoriesWithNominees, {

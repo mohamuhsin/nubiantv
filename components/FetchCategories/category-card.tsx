@@ -76,7 +76,7 @@ export default function CategoryCard({
           value={isOpen ? category._id : undefined}
           onValueChange={(val) => {
             if (val === undefined) {
-              onToggle(index, "close"); // signal close
+              onToggle(index, "close");
             } else {
               onToggle(index, category._id);
             }
