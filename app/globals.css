@@ -12,9 +12,6 @@
   --font-mono: var(--font-geist-mono);
   --radius: 0.625rem;
 
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
-
   --card: oklch(1 0 0);
   --card-foreground: oklch(0.145 0 0);
 
@@ -22,8 +19,8 @@
   --popover-foreground: oklch(0.145 0 0);
 
   /* Updated colors */
-  --primary: #ff7d1d; /* Focus ring / primary elements */
-  --primary-foreground: #ffffff; /* Text on primary */
+  --primary: oklch(0.205 0 0); /* Focus ring / primary elements */
+  --primary-foreground: oklch(0.985 0 0); /* Text on primary */
   --secondary: oklch(0.97 0 0);
   --secondary-foreground: oklch(0.205 0 0);
   --muted: oklch(0.97 0 0);
@@ -32,9 +29,9 @@
   --accent-foreground: oklch(0.205 0 0);
   --destructive: oklch(0.577 0.245 27.325);
 
-  --border: #ff7d1d; /* Optional: match input border */
-  --input: #ff7d1d; /* Input border color */
-  --ring: #ff7d1d; /* Focus ring color */
+  --border: oklch(0.922 0 0); /* Optional: match input border */
+  --input: oklch(0.922 0 0); /* Input border color */
+  --ring: oklch(0.708 0 0); /* Focus ring color */
 
   --chart-1: oklch(0.646 0.222 41.116);
   --chart-2: oklch(0.6 0.118 184.704);
@@ -44,12 +41,14 @@
 
   --sidebar: oklch(0.985 0 0);
   --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: #ff7d1d; /* Optional: sidebar primary */
-  --sidebar-primary-foreground: #ffffff;
+  --sidebar-primary: oklch(0.205 0 0); /* Optional: sidebar primary */
+  --sidebar-primary-foreground: oklch(0.985 0 0);
   --sidebar-accent: oklch(0.97 0 0);
   --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: #ff7d1d; /* Optional: sidebar border */
-  --sidebar-ring: #ff7d1d; /* Optional: sidebar focus ring */
+  --sidebar-border: oklch(0.922 0 0); /* Optional: sidebar border */
+  --sidebar-ring: oklch(0.708 0 0); /* Optional: sidebar focus ring */
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.145 0 0);
 }
 
 @layer utilities {
@@ -179,6 +178,20 @@
   --sidebar-accent-foreground: oklch(0.985 0 0);
   --sidebar-border: oklch(1 0 0 / 10%);
   --sidebar-ring: oklch(0.556 0 0);
+}
+
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+.animate-shimmer {
+  animation: shimmer 0.5s linear infinite;
+  background-size: 200% 100%;
 }
 
 @layer base {

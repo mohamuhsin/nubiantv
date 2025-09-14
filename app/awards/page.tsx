@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Heading from "@/components/Heading/heading";
 import { CategorySearch } from "@/components/Filter/cat-filter";
+import Categories from "@/components/FetchCategories/categories";
 
 export default function AwardsPage() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -22,11 +23,14 @@ export default function AwardsPage() {
       <main className="flex-grow w-full">
         <section className="py-14 px-4 sm:px-6 lg:px-8 w-full">
           {/* Search Component */}
-          <div className="mb-10 w-full">
+          <div className="mb-16 w-full">
+            {" "}
+            {/* Increased from mb-10 to mb-16 */}
             <CategorySearch value={searchQuery} onChange={setSearchQuery} />
           </div>
 
-          {/* Later: Cards / Categories list */}
+          {/* Categories List */}
+          <Categories searchQuery={searchQuery} />
         </section>
       </main>
     </div>

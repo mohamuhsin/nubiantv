@@ -1,11 +1,8 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 // models/Vote.ts
-"use client";
-
 import mongoose, { Document, Schema } from "mongoose";
 import { parsePhoneNumberFromString } from "libphonenumber-js";
 
-// Interface for TypeScript
+// TypeScript interface
 export interface IVote extends Document {
   phone: string;
   nominee: mongoose.Types.ObjectId;
@@ -13,29 +10,24 @@ export interface IVote extends Document {
   fingerprint?: string;
   ip?: string;
   userAgent?: string;
-  status: "pending" | "verified";
   createdAt: Date;
   updatedAt: Date;
 }
 
-// Schema definition
+// Vote schema
 const voteSchema = new Schema<IVote>(
   {
     phone: {
       type: String,
       required: true,
-      set: (v: string) => {
-        // Normalize phone to E.164 format
+      set: (v: string): string => {
         const number = parsePhoneNumberFromString(v);
-        if (!number || !number.isValid()) return v;
-        return number.format("E.164");
+        return number?.isValid() ? number.format("E.164") : v;
       },
       validate: {
-        validator: (v: string) => {
-          const number = parsePhoneNumberFromString(v);
-          return number?.isValid() ?? false;
-        },
-        message: (props: any) =>
+        validator: (v: string): boolean =>
+          parsePhoneNumberFromString(v)?.isValid() ?? false,
+        message: (props: { value: string }): string =>
           `${props.value} is not a valid international phone number!`,
       },
     },
@@ -58,31 +50,25 @@ const voteSchema = new Schema<IVote>(
     userAgent: {
       type: String,
     },
-    status: {
-      type: String,
-      enum: ["pending", "verified"],
-      default: "verified",
-    },
   },
   {
-    timestamps: true,
+    timestamps: true, // adds createdAt and updatedAt
   }
 );
 
-// Indexes for preventing duplicate votes per category
+// Prevent multiple votes per phone per category
 voteSchema.index({ phone: 1, category: 1 }, { unique: true });
+
+// Prevent multiple votes per device fingerprint per category
 voteSchema.index(
   { fingerprint: 1, category: 1 },
   { unique: true, partialFilterExpression: { fingerprint: { $exists: true } } }
 );
 
-// Optional: index for faster query of votes per category
-voteSchema.index({ category: 1, status: 1 });
+// Optional: index for faster queries by category
+voteSchema.index({ category: 1 });
 
-// Optional: index for IP analytics
-voteSchema.index({ ip: 1, category: 1 });
-
-// Model creation
+// Model creation (avoid recompiling in dev)
 const Vote = mongoose.models.Vote || mongoose.model<IVote>("Vote", voteSchema);
 
 export default Vote;

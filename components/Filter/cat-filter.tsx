@@ -17,7 +17,7 @@ export function CategorySearch({ value, onChange }: CategorySearchProps) {
         htmlFor="category-search"
         className="block text-sm lg:text-base font-medium mb-2 text-muted-foreground text-center lg:text-left"
       >
-        Search Awards Categories
+        Search Award Categories
       </Label>
 
       {/* Input container */}
