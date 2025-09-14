@@ -56,7 +56,7 @@ export default function CategoryCard({
       <CardContent className="flex flex-col gap-2 px-4 pt-4 pb-4 flex-1">
         {/* Title */}
         <div className="h-14 sm:h-16">
-          <h3 className="text-center font-bold text-gray-900 text-base sm:text-lg md:text-xl leading-snug break-words overflow-hidden">
+          <h3 className="text-center font-bold text-gray-900 text-lg sm:text-lg md:text-xl leading-snug break-words overflow-hidden">
             {category.name}
           </h3>
         </div>
