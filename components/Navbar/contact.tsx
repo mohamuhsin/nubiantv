@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import { motion, Variants } from "framer-motion";
 import { FaPhoneAlt, FaEnvelope, FaHome, FaTiktok } from "react-icons/fa";
 import { ReusableButton } from "./donate";
 import { JSX } from "react";
@@ -37,27 +36,15 @@ const contacts: Contact[] = [
   },
 ];
 
-// Motion variants for animations
-const itemVariants: Variants = {
-  hidden: { opacity: 0, y: 10 },
-  visible: (index: number) => ({
-    opacity: 1,
-    y: 0,
-    transition: { delay: index * 0.2, duration: 0.4, ease: "easeOut" },
-  }),
-};
-
 export default function ContactInfo(): JSX.Element {
   return (
-    <motion.nav
+    <nav
       aria-label="Contact Information"
-      initial="hidden"
-      animate="visible"
       className="flex flex-wrap md:flex-nowrap w-full items-center justify-between gap-y-4 md:gap-x-12 text-[10px] md:text-xs lg:text-sm px-6 py-4 min-w-0"
     >
       {/* Left side contacts */}
       <div className="flex flex-wrap md:flex-nowrap items-center gap-6 md:gap-8">
-        {contacts.map(({ href, icon: Icon, label, type }, index) => {
+        {contacts.map(({ href, icon: Icon, label, type }) => {
           const commonClasses =
             "flex items-center gap-3 text-white hover:text-[#ff7e1c] transition duration-300";
 
@@ -65,12 +52,7 @@ export default function ContactInfo(): JSX.Element {
             "w-8 h-8 flex items-center justify-center rounded-full bg-white text-[#030268] hover:bg-[#ff7e1c] hover:text-white transition duration-300 text-[16px]";
 
           return (
-            <motion.div
-              key={label}
-              custom={index}
-              variants={itemVariants}
-              className="w-full md:w-auto shrink-0"
-            >
+            <div key={label} className="w-full md:w-auto shrink-0">
               {type === "internal" ? (
                 <Link
                   href={href}
@@ -102,19 +84,15 @@ export default function ContactInfo(): JSX.Element {
                   </span>
                 </a>
               )}
-            </motion.div>
+            </div>
           );
         })}
       </div>
 
       {/* Right side button */}
-      <motion.div
-        custom={contacts.length}
-        variants={itemVariants}
-        className="shrink-0 mt-4 md:mt-0"
-      >
+      <div className="shrink-0 mt-4 md:mt-0">
         <ReusableButton text="DONATE NOW" href="#donate" target="_blank" />
-      </motion.div>
-    </motion.nav>
+      </div>
+    </nav>
   );
 }
