@@ -31,7 +31,7 @@
 
   --border: oklch(0.922 0 0); /* Optional: match input border */
   --input: oklch(0.922 0 0); /* Input border color */
-  --ring: oklch(0.708 0 0); /* Focus ring color */
+  --ring: #ff7d1d; /* Focus ring color */
 
   --chart-1: oklch(0.646 0.222 41.116);
   --chart-2: oklch(0.6 0.118 184.704);
