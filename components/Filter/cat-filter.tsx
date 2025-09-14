@@ -15,7 +15,7 @@ export function CategorySearch({ value, onChange }: CategorySearchProps) {
       {/* Heading */}
       <Label
         htmlFor="category-search"
-        className="mb-2 block text-center text-sm sm:text-base lg:text-lg font-medium text-muted-foreground"
+        className="mb-2 block text-center text-base sm:text-lg lg:text-xl font-medium text-muted-foreground"
       >
         Search Award Categories
       </Label>
