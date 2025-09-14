@@ -1,13 +1,13 @@
-// lib/redis.ts
 import Redis from "ioredis";
 
-if (!process.env.REDIS_URL) {
-  throw new Error("REDIS_URL is not defined in .env");
+let redis: Redis | null = null;
+
+if (process.env.REDIS_URL) {
+  redis = new Redis(process.env.REDIS_URL);
+  redis.on("connect", () => console.log("✅ Connected to Redis"));
+  redis.on("error", (err) => console.error("Redis error:", err));
+} else {
+  console.warn("⚠ REDIS_URL is not defined. Redis cache disabled.");
 }
-
-const redis = new Redis(process.env.REDIS_URL); // now TS knows it's defined
-
-redis.on("connect", () => console.log("✅ Connected to Redis"));
-redis.on("error", (err) => console.error("Redis error:", err));
 
 export default redis;
