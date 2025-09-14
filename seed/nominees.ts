@@ -35,15 +35,15 @@ const nomineesByCategory: Record<string, string[]> = {
   ],
 
   "Best Nubian Song Award": [
-    "“Mama” – Mad Fire",
-    "“Kungu ta Waze” – Amina Bojo",
-    "“Chai te Naku” – Jab Jay",
-    "“Mahaba” – Brady",
-    "“Binia Nubi” – Ramos Yusuf",
-    "“Abuya” – Risan Romeo",
+    "Mama – Mad Fire",
+    "Kungu ta Waze – Amina Bojo",
+    "Chai te Naku – Jab Jay",
+    "Mahaba – Brady",
+    "Binia Nubi – Ramos Yusuf",
+    "Abuya – Risan Romeo",
   ],
 
-  "Best Nubian Social & Cultural Group Award": [
+  "Best Nubian Cultural Group Award": [
     "Satellite Social Club",
     "Yal Hamam",
     "Nukra",

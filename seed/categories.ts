@@ -17,7 +17,7 @@ const categories = [
   { name: "Best Nubian Artist Award", image: "/nubiantv-awards.jpeg" },
   { name: "Best Nubian Song Award", image: "/nubiantv-awards.jpeg" },
   {
-    name: "Best Nubian Social & Cultural Group Award",
+    name: "Best Nubian Cultural Group Award",
     image: "/nubiantv-awards.jpeg",
   },
   { name: "Best Nubian Restaurant Award", image: "/nubiantv-awards.jpeg" },
