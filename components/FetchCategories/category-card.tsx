@@ -85,7 +85,7 @@ export default function CategoryCard({
         >
           <AccordionItem value={category._id} className="border-b-0">
             <AccordionTrigger className="w-full flex justify-between items-center px-4 py-2 rounded-lg bg-transparent border border-gray-300 hover:border-[#ff7d1d] hover:text-[#ff7d1d] text-gray-800 font-medium text-sm sm:text-base transition-colors duration-200 no-underline">
-              {loadingResults ? "Loading..." : "See Results"}
+              {loadingResults ? "Loading..." : "View Results"}
               <span
                 className={`transition-transform duration-300 ${
                   isOpen ? "rotate-180" : "rotate-0"
