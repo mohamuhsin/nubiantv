@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import Image from "next/image";
 import { Card, CardContent } from "@/components/ui/card";
 import {
@@ -10,6 +11,7 @@ import {
 } from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button";
 import ResultsList from "./result-list";
+import VoteModal from "../Vote/vote-modal";
 
 interface Nominee {
   _id: string;
@@ -39,6 +41,8 @@ export default function CategoryCard({
   isOpen,
   onToggle,
 }: CategoryCardProps) {
+  const [modalOpen, setModalOpen] = useState(false);
+
   return (
     <Card className="flex flex-col w-full max-w-sm mx-auto rounded-xl shadow-md hover:shadow-lg transition-shadow duration-300 bg-white overflow-hidden">
       {/* Image Section */}
@@ -65,9 +69,12 @@ export default function CategoryCard({
         <Button
           style={{ backgroundColor: "#ff7d1d" }}
           className="w-full py-2 font-semibold text-white hover:bg-[#e66c00] transition-all duration-300 rounded-lg text-sm sm:text-base md:text-base"
+          onClick={() => setModalOpen(true)}
         >
           Vote Now
         </Button>
+
+        <VoteModal open={modalOpen} onClose={() => setModalOpen(false)} />
 
         {/* Accordion */}
         <Accordion
