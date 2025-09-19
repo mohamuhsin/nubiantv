@@ -18,7 +18,7 @@ export default function SupportSection() {
 
       {/* CTA Button */}
       <div className="mt-4">
-        <ReusableButton text="SUPPORT NOW" href="#donate" target="_blank" />
+        <ReusableButton text="SUPPORT US" href="#donate" target="_blank" />
       </div>
     </section>
   );
