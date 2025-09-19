@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useMemo } from "react";
+import { useState, useMemo } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import SkeletonCard from "./skeleton-card";
 import CategoryCard from "./category-card";
@@ -16,24 +16,31 @@ interface Category {
   _id: string;
   name: string;
   image: string;
-  nominees: Nominee[];
+  nominees?: Nominee[];
 }
 
 interface CategoriesProps {
   searchQuery?: string;
 }
 
-// Fetch categories from API
+// Fetch categories list (without nominees)
 const fetchCategories = async (): Promise<Category[]> => {
   const res = await fetch("/api/categories");
   if (!res.ok) throw new Error("Failed to fetch categories");
   return res.json();
 };
 
+// Fetch detailed category (with nominees + votes)
+const fetchCategoryResults = async (categoryId: string): Promise<Category> => {
+  const res = await fetch(`/api/categories/${categoryId}`);
+  if (!res.ok) throw new Error(`Failed to fetch category ${categoryId}`);
+  return res.json();
+};
+
 export default function Categories({ searchQuery = "" }: CategoriesProps) {
   const queryClient = useQueryClient();
-  const [loadingIndex, setLoadingIndex] = useState<number | null>(null);
   const [openIndex, setOpenIndex] = useState<number | null>(null);
+  const [loadingIndex, setLoadingIndex] = useState<number | null>(null);
 
   const {
     data: categories,
@@ -43,41 +50,47 @@ export default function Categories({ searchQuery = "" }: CategoriesProps) {
     queryKey: ["categories"],
     queryFn: fetchCategories,
     staleTime: 1000 * 60 * 5,
-    refetchOnWindowFocus: false,
   });
 
-  const handleToggleResults = useCallback(
-    async (index: number, categoryId: string) => {
-      if (!categories) return;
+  const handleToggleResults = async (
+    index: number,
+    categoryId: string | null
+  ) => {
+    if (!categories) return;
 
-      // Close if already open
-      if (openIndex === index) {
-        setOpenIndex(null);
-        return;
-      }
+    // Close instantly
+    if (openIndex === index || categoryId === null) {
+      setOpenIndex(null);
+      return;
+    }
 
-      setLoadingIndex(index);
+    // Open instantly
+    setOpenIndex(index);
+    setLoadingIndex(index);
 
-      try {
-        const res = await fetch(`/api/categories/${categoryId}`);
-        if (!res.ok) throw new Error("Failed to fetch category results");
-        const data: Category = await res.json();
+    try {
+      const data = await fetchCategoryResults(categoryId);
 
+      if (data) {
         queryClient.setQueryData<Category[]>(["categories"], (old) =>
           old?.map((cat, i) =>
-            i === index ? { ...cat, nominees: data.nominees } : cat
+            i === index ? { ...cat, nominees: data.nominees || [] } : cat
           )
         );
-
-        setOpenIndex(index);
-      } catch (err) {
-        console.error(err);
-      } finally {
-        setLoadingIndex(null);
+      } else {
+        queryClient.setQueryData<Category[]>(["categories"], (old) =>
+          old?.map((cat, i) => (i === index ? { ...cat, nominees: [] } : cat))
+        );
       }
-    },
-    [categories, openIndex, queryClient]
-  );
+    } catch (err) {
+      console.error(err);
+      queryClient.setQueryData<Category[]>(["categories"], (old) =>
+        old?.map((cat, i) => (i === index ? { ...cat, nominees: [] } : cat))
+      );
+    } finally {
+      setLoadingIndex(null);
+    }
+  };
 
   const filteredCategories = useMemo(() => {
     if (!categories) return [];
@@ -104,11 +117,11 @@ export default function Categories({ searchQuery = "" }: CategoriesProps) {
         : filteredCategories.map((cat, index) => (
             <div key={cat._id} className="w-full max-w-sm mx-auto">
               <CategoryCard
-                category={cat}
+                category={{ ...cat, nominees: cat.nominees || [] }}
                 index={index}
                 onToggle={handleToggleResults}
-                loadingResults={loadingIndex === index}
                 isOpen={openIndex === index}
+                loadingResults={loadingIndex === index}
               />
             </div>
           ))}

@@ -31,7 +31,7 @@ interface CategoryCardProps {
   index: number;
   loadingResults: boolean;
   isOpen: boolean;
-  onToggle: (index: number, categoryId: string) => void;
+  onToggle: (index: number, categoryId: string | null) => void;
 }
 
 export default function CategoryCard({
@@ -77,26 +77,52 @@ export default function CategoryCard({
         <VoteModal
           open={modalOpen}
           onClose={() => setModalOpen(false)}
-          category={null}
+          category={category}
         />
 
-        {/* Accordion */}
+        {/* Accordion for View Results */}
         <Accordion
           type="single"
           collapsible
           value={isOpen ? category._id : undefined}
           onValueChange={(val) => {
             if (val === undefined) {
-              onToggle(index, "close");
+              onToggle(index, null); // close
             } else {
-              onToggle(index, category._id);
+              onToggle(index, category._id); // open
             }
           }}
           className="mt-2"
         >
           <AccordionItem value={category._id} className="border-b-0">
             <AccordionTrigger className="w-full flex justify-between items-center px-4 py-2 rounded-lg bg-transparent border border-gray-300 hover:border-[#ff7d1d] hover:text-[#ff7d1d] text-gray-800 font-medium text-sm sm:text-base transition-colors duration-200 no-underline">
-              {loadingResults ? "Loading..." : "View Results"}
+              {loadingResults ? (
+                <span className="flex items-center gap-2 text-[#ff7d1d]">
+                  <svg
+                    className="animate-spin h-4 w-4"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="#ff7d1d"
+                      strokeWidth="4"
+                    />
+                    <path
+                      className="opacity-75"
+                      fill="#ff7d1d"
+                      d="M4 12a8 8 0 018-8v8H4z"
+                    />
+                  </svg>
+                  Loading...
+                </span>
+              ) : (
+                "View Results"
+              )}
               <span
                 className={`transition-transform duration-300 ${
                   isOpen ? "rotate-180" : "rotate-0"
