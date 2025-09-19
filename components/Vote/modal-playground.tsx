@@ -7,11 +7,33 @@ import VotingModal from "./voting-modal";
 import EndedModal from "./ended-modal";
 import { useVotingStatus } from "@/hooks/useVotingStatus";
 
+interface Nominee {
+  _id: string;
+  name: string;
+}
+
+interface Category {
+  _id: string;
+  name: string;
+  nominees: Nominee[];
+}
+
 export default function ModalPlayground() {
   const [activeModal, setActiveModal] = useState<
     "countdown" | "voting" | "ended" | null
   >(null);
   const { status, votingStart } = useVotingStatus();
+
+  // Sample category for testing VotingModal
+  const sampleCategory: Category = {
+    _id: "cat1",
+    name: "Best Product",
+    nominees: [
+      { _id: "n1", name: "Nominee 1" },
+      { _id: "n2", name: "Nominee 2" },
+      { _id: "n3", name: "Nominee 3" },
+    ],
+  };
 
   const openModal = () => {
     if (status === "before") setActiveModal("countdown");
@@ -62,9 +84,16 @@ export default function ModalPlayground() {
           {activeModal === "countdown" && (
             <CountdownModal startDate={votingStart} />
           )}
+
           {activeModal === "voting" && (
-            <VotingModal onStartVoting={() => alert("Voting Started")} />
+            <VotingModal
+              category={sampleCategory}
+              isOpen={true}
+              onClose={() => setActiveModal(null)}
+              onVoteSuccess={() => alert("Vote submitted successfully!")}
+            />
           )}
+
           {activeModal === "ended" && <EndedModal />}
         </Dialog>
       )}
