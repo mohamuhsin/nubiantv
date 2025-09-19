@@ -1,11 +1,11 @@
 import { create } from "zustand";
 
-interface AccordionState {
-  openIndex: number | null; // currently open accordion index
-  setOpenIndex: (index: number | null) => void; // function to update openIndex
+interface AccordionStore {
+  openCategoryId: string | null;
+  setOpenCategory: (id: string | null) => void;
 }
 
-export const useAccordionStore = create<AccordionState>((set) => ({
-  openIndex: null, // default: no accordion is open
-  setOpenIndex: (index) => set({ openIndex: index }),
+export const useAccordionStore = create<AccordionStore>((set) => ({
+  openCategoryId: null,
+  setOpenCategory: (id) => set({ openCategoryId: id }),
 }));
