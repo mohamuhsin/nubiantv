@@ -91,7 +91,7 @@ export default function ContactInfo(): JSX.Element {
 
       {/* Right side button */}
       <div className="shrink-0 mt-4 md:mt-0">
-        <ReusableButton text="DONATE NOW" href="#donate" target="_blank" />
+        <ReusableButton text="SUPPORT NOW" href="#donate" target="_blank" />
       </div>
     </nav>
   );
