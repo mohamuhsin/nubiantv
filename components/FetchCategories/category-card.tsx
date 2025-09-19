@@ -74,7 +74,11 @@ export default function CategoryCard({
           Vote Now
         </Button>
 
-        <VoteModal open={modalOpen} onClose={() => setModalOpen(false)} />
+        <VoteModal
+          open={modalOpen}
+          onClose={() => setModalOpen(false)}
+          category={null}
+        />
 
         {/* Accordion */}
         <Accordion

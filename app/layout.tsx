@@ -4,6 +4,7 @@ import Navbar from "@/components/Navbar/navbar";
 import Follow from "@/components/Footer/footer";
 import { Providers } from "@/components/Providers/providers";
 import "./globals.css";
+import { Analytics } from "@vercel/analytics/next";
 
 // Primary font
 const montserrat = Montserrat({
@@ -40,6 +41,7 @@ export default function RootLayout({
           <Navbar />
           {children}
           <Follow />
+          <Analytics />
         </Providers>
       </body>
     </html>

@@ -1,53 +1,167 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import {
+  Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogDescription,
+  DialogPortal,
+  DialogOverlay,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { useState } from "react";
+import { isValidPhoneNumber } from "libphonenumber-js";
+import FingerprintJS from "@fingerprintjs/fingerprintjs";
+import { cn } from "@/lib/utils";
 
-interface VotingModalProps {
-  onStartVoting?: (phone: string) => void;
+import { PhoneInputCustom } from "./phone-input";
+
+interface Nominee {
+  _id: string;
+  name: string;
 }
 
-export default function VotingModal({ onStartVoting }: VotingModalProps) {
-  const [phone, setPhone] = useState("");
+interface Category {
+  _id: string;
+  name: string;
+  nominees: Nominee[];
+}
 
-  const handleSubmit = () => {
-    if (!phone) return alert("Please enter your phone number");
-    if (onStartVoting) onStartVoting(phone);
+interface VotingModalProps {
+  category: Category | null;
+  isOpen: boolean;
+  onClose: () => void;
+  onVoteSuccess?: () => void;
+}
+
+export default function VotingModal({
+  category,
+  isOpen,
+  onClose,
+  onVoteSuccess,
+}: VotingModalProps) {
+  const [nomineeId, setNomineeId] = useState("");
+  const [phone, setPhone] = useState<string | undefined>();
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [fingerprint, setFingerprint] = useState<string | null>(null);
+
+  // Load device fingerprint
+  useEffect(() => {
+    const loadFingerprint = async () => {
+      try {
+        const fp = await FingerprintJS.load();
+        const result = await fp.get();
+        setFingerprint(result.visitorId);
+      } catch {
+        setFingerprint(null);
+      }
+    };
+    loadFingerprint();
+  }, []);
+
+  // Reset modal state when closed
+  useEffect(() => {
+    if (!isOpen) {
+      setNomineeId("");
+      setPhone(undefined);
+      setError(null);
+    }
+  }, [isOpen]);
+
+  if (!isOpen || !category) return null;
+
+  const handleSubmit = async () => {
+    setError(null);
+
+    if (!nomineeId) return setError("Please select a nominee.");
+    if (!phone) return setError("Please enter your phone number.");
+    if (!isValidPhoneNumber(phone))
+      return setError("Please enter a valid phone number.");
+    if (!fingerprint)
+      return setError("Unable to verify your device. Refresh and try again.");
+
+    setLoading(true);
+    try {
+      const res = await fetch("/api/request_otp", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          phone,
+          nomineeId,
+          categoryId: category._id,
+          fingerprint,
+        }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        setError(data.error || "Failed to submit vote. Please try again.");
+      } else {
+        onVoteSuccess?.();
+        onClose();
+      }
+    } catch {
+      setError("An error occurred. Please try again.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
-    <DialogContent className="w-full max-w-md sm:max-w-lg md:max-w-xl rounded-2xl p-6 sm:p-8 md:p-10 flex flex-col items-center justify-center text-center">
-      <DialogHeader className="flex flex-col items-center justify-center text-center space-y-3 sm:space-y-4">
-        <DialogTitle className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900">
-          Vote Now
-        </DialogTitle>
-        <DialogDescription className="text-sm sm:text-base md:text-lg text-muted-foreground">
-          Enter your phone number to cast your vote for your favourite nominees.
-        </DialogDescription>
-      </DialogHeader>
+    <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
+      <DialogPortal>
+        <DialogOverlay className="fixed inset-0 bg-black/50 backdrop-blur-sm" />
+        <DialogContent className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-lg sm:max-w-md md:max-w-xl rounded-3xl p-6 sm:p-8 md:p-10 flex flex-col items-center justify-center text-center shadow-2xl bg-white max-h-[90vh] overflow-y-auto">
+          <DialogHeader className="flex flex-col items-center justify-center text-center space-y-4">
+            <DialogTitle className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900">
+              Vote in {category.name}
+            </DialogTitle>
+          </DialogHeader>
 
-      <div className="flex flex-col items-center gap-4 sm:gap-6 py-6 w-full">
-        <input
-          type="tel"
-          placeholder="Enter your phone number"
-          value={phone}
-          onChange={(e) => setPhone(e.target.value)}
-          className="w-full sm:w-[80%] md:w-[60%] px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#ff7d1d] text-sm sm:text-base md:text-lg"
-        />
+          {/* Nominee select using Tailwind */}
+          <div className="mt-6 w-full sm:w-4/5 md:w-3/5">
+            <select
+              value={nomineeId}
+              onChange={(e) => setNomineeId(e.target.value)}
+              className="w-full h-12 px-3 rounded-lg border border-gray-300 text-center text-sm sm:text-base focus:outline-none focus:ring-1 focus:ring-orange-500 focus:border-orange-500"
+            >
+              <option value="">-- Select Nominee --</option>
+              {category.nominees.map((n) => (
+                <option key={n._id} value={n._id}>
+                  {n.name}
+                </option>
+              ))}
+            </select>
+          </div>
 
-        <Button
-          onClick={handleSubmit}
-          className="w-full sm:w-auto px-6 py-2 sm:px-8 sm:py-3 md:px-10 md:py-4 font-semibold text-white bg-[#ff7d1d] hover:bg-[#e66c00] transition-all duration-300 rounded-lg text-sm sm:text-base md:text-lg"
-        >
-          Submit Vote
-        </Button>
-      </div>
-    </DialogContent>
+          {/* Phone input */}
+          <div className="mt-4 w-full sm:w-4/5 md:w-3/5">
+            <PhoneInputCustom
+              value={phone}
+              onChange={setPhone}
+              defaultCountry="UG"
+              error={error ?? null}
+            />
+          </div>
+
+          {/* Error */}
+          {error && <p className="text-red-500 text-sm mt-3">{error}</p>}
+
+          {/* Submit button */}
+          <Button
+            onClick={handleSubmit}
+            className={cn(
+              "mt-6 w-full sm:w-auto px-6 py-3 font-semibold text-white rounded-lg",
+              "bg-[#ff7d1d] hover:bg-[#e66c00] transition-all duration-300 text-sm sm:text-base md:text-lg"
+            )}
+            disabled={loading}
+          >
+            {loading ? "Submitting Vote..." : "Submit Vote"}
+          </Button>
+        </DialogContent>
+      </DialogPortal>
+    </Dialog>
   );
 }
