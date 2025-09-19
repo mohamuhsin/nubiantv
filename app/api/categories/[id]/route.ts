@@ -7,8 +7,12 @@ import redis from "@/lib/redis";
 
 const CACHE_TTL = 30;
 
-export async function GET(req: Request, context: { params: { id: string } }) {
-  const { id } = context.params;
+export async function GET(
+  req: Request,
+  { params }: { params: { id: string } }
+) {
+  // ✅ Correctly typed second argument
+  const { id } = params;
 
   await connectDB();
 
