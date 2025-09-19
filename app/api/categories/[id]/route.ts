@@ -5,18 +5,17 @@ import Category from "@/models/categories";
 import Vote from "@/models/votes";
 import redis from "@/lib/redis";
 
-const CACHE_TTL = 30; // seconds
+const CACHE_TTL = 30;
 
-export async function GET(
-  req: Request,
-  { params }: { params: { id: string } } // destructured correctly
-) {
-  const { id } = params;
+export async function GET(req: Request) {
+  // Extract the id from the URL
+  const url = new URL(req.url);
+  const segments = url.pathname.split("/").filter(Boolean);
+  const id = segments[segments.length - 1];
 
   await connectDB();
 
   try {
-    // 1️⃣ Try Redis cache first
     if (redis) {
       const cached = await redis.get(`category:${id}`);
       if (cached) {
@@ -27,9 +26,8 @@ export async function GET(
       }
     }
 
-    // 2️⃣ Fetch category with nominees
     const category = await Category.findById(id)
-      .populate({ path: "nominees", select: "_id name" }) // populate virtual
+      .populate({ path: "nominees", select: "_id name" })
       .lean({ virtuals: true });
 
     if (!category) {
@@ -39,18 +37,16 @@ export async function GET(
       );
     }
 
-    // 3️⃣ Aggregate votes per nominee
     const voteCounts = await Vote.aggregate([
       { $match: { category: category._id } },
       { $group: { _id: "$nominee", count: { $sum: 1 } } },
     ]);
 
-    const voteMap: Record<string, number> = {};
-    voteCounts.forEach((vc) => {
-      voteMap[vc._id.toString()] = vc.count;
-    });
+    const voteMap = voteCounts.reduce<Record<string, number>>((acc, vc) => {
+      acc[vc._id.toString()] = vc.count;
+      return acc;
+    }, {});
 
-    // 4️⃣ Merge vote counts into nominees
     const nomineesWithVotes = (category.nominees || []).map((nominee: any) => ({
       ...nominee,
       voteCount: voteMap[nominee._id.toString()] || 0,
@@ -58,14 +54,12 @@ export async function GET(
 
     const responseData = { ...category, nominees: nomineesWithVotes };
 
-    // 5️⃣ Cache in Redis
     if (redis) {
       redis
         .set(`category:${id}`, JSON.stringify(responseData), "EX", CACHE_TTL)
         .catch((err) => console.warn("Redis cache set failed:", err));
     }
 
-    // 6️⃣ Return JSON response
     return NextResponse.json(responseData, {
       status: 200,
       headers: { "Cache-Control": `public, max-age=${CACHE_TTL}` },
