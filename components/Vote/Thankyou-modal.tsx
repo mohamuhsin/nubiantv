@@ -23,7 +23,7 @@ export default function ThankYouModal({
   nomineeName,
   categoryName,
 }: ThankYouModalProps) {
-  const shareMessage = `I just voted for ${nomineeName} in the ${categoryName} category in the Nubian TV Awards. Vote here 👉 https://nubiantv.live/awards`;
+  const shareMessage = `I just voted for ${nomineeName} in the ${categoryName} category in the Nubian TV Awards. Vote here 👉`;
 
   if (!isOpen) return null;
 
