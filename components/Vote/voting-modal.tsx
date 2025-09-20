@@ -15,6 +15,13 @@ import FingerprintJS from "@fingerprintjs/fingerprintjs";
 import { cn } from "@/lib/utils";
 
 import { PhoneInputCustom } from "./phone-input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 interface Nominee {
   _id: string;
@@ -41,7 +48,7 @@ export default function VotingModal({
   onVoteSuccess,
 }: VotingModalProps) {
   const [nomineeId, setNomineeId] = useState("");
-  const [phone, setPhone] = useState<string | undefined>();
+  const [phone, setPhone] = useState<string>();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [fingerprint, setFingerprint] = useState<string | null>(null);
@@ -77,13 +84,13 @@ export default function VotingModal({
     if (!nomineeId) return setError("Please select a nominee.");
     if (!phone) return setError("Please enter your phone number.");
     if (!isValidPhoneNumber(phone))
-      return setError("Please enter a valid phone number.");
+      return setError("Please enter a valid international phone number.");
     if (!fingerprint)
       return setError("Unable to verify your device. Refresh and try again.");
 
     setLoading(true);
     try {
-      const res = await fetch("/api/request_otp", {
+      const res = await fetch("/api/submit-vote", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -112,49 +119,56 @@ export default function VotingModal({
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
       <DialogPortal>
-        <DialogOverlay className="fixed inset-0 bg-black/50 backdrop-blur-sm" />
-        <DialogContent className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-lg sm:max-w-md md:max-w-xl rounded-3xl p-6 sm:p-8 md:p-10 flex flex-col items-center justify-center text-center shadow-2xl bg-white max-h-[90vh] overflow-y-auto">
-          <DialogHeader className="flex flex-col items-center justify-center text-center space-y-4">
-            <DialogTitle className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900">
+        <DialogOverlay className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 sm:p-6" />
+        <DialogContent className="w-full max-w-lg sm:max-w-xl md:max-w-2xl rounded-2xl p-6 sm:p-8 md:p-10 flex flex-col items-center justify-center text-center bg-white shadow-2xl max-h-[90vh] overflow-y-auto animate-in fade-in-0 zoom-in-95">
+          {/* Header */}
+          <DialogHeader className="flex flex-col items-center justify-center w-full text-center space-y-4">
+            <DialogTitle className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 w-full text-center">
               Vote in {category.name}
             </DialogTitle>
           </DialogHeader>
 
-          {/* Nominee select using Tailwind */}
-          <div className="mt-6 w-full sm:w-4/5 md:w-3/5">
-            <select
-              value={nomineeId}
-              onChange={(e) => setNomineeId(e.target.value)}
-              className="w-full h-12 px-3 rounded-lg border border-gray-300 text-center text-sm sm:text-base focus:outline-none focus:ring-1 focus:ring-orange-500 focus:border-orange-500"
-            >
-              <option value="">-- Select Nominee --</option>
-              {category.nominees.map((n) => (
-                <option key={n._id} value={n._id}>
-                  {n.name}
-                </option>
-              ))}
-            </select>
+          {/* Nominee select */}
+          <div className="mt-6 w-full flex justify-center">
+            <Select value={nomineeId} onValueChange={setNomineeId}>
+              <SelectTrigger className="w-full sm:w-4/5 md:w-3/5 h-14 rounded-xl border border-gray-300 text-center text-base focus:ring-2 focus:ring-orange-500 focus:border-orange-500 mx-auto shadow-sm hover:shadow-md transition">
+                <SelectValue placeholder="-- Select Nominee --" />
+              </SelectTrigger>
+              <SelectContent className="w-full sm:w-4/5 md:w-3/5 mx-auto">
+                {category.nominees.map((n) => (
+                  <SelectItem key={n._id} value={n._id}>
+                    {n.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
 
           {/* Phone input */}
-          <div className="mt-4 w-full sm:w-4/5 md:w-3/5">
-            <PhoneInputCustom
-              value={phone}
-              onChange={setPhone}
-              defaultCountry="UG"
-              error={error ?? null}
-            />
+          <div className="mt-6 w-full flex justify-center">
+            <div className="w-full sm:w-4/5 md:w-3/5 mx-auto">
+              <PhoneInputCustom
+                value={phone}
+                onChange={setPhone}
+                defaultCountry="UG"
+                error={error ?? null}
+              />
+            </div>
           </div>
 
-          {/* Error */}
-          {error && <p className="text-red-500 text-sm mt-3">{error}</p>}
+          {/* Error message */}
+          {error && (
+            <p className="text-red-500 text-sm mt-3 text-center font-medium">
+              {error}
+            </p>
+          )}
 
           {/* Submit button */}
           <Button
             onClick={handleSubmit}
             className={cn(
-              "mt-6 w-full sm:w-auto px-6 py-3 font-semibold text-white rounded-lg",
-              "bg-[#ff7d1d] hover:bg-[#e66c00] transition-all duration-300 text-sm sm:text-base md:text-lg"
+              "mt-8 w-full sm:w-4/5 md:w-3/5 px-6 py-4 font-semibold text-white rounded-xl mx-auto",
+              "bg-[#ff7d1d] hover:bg-[#e66c00] transition-all duration-300 text-lg shadow-md hover:shadow-lg"
             )}
             disabled={loading}
           >

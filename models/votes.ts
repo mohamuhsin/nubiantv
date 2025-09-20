@@ -1,6 +1,5 @@
 // models/Vote.ts
 import mongoose, { Document, Schema } from "mongoose";
-import { parsePhoneNumberFromString } from "libphonenumber-js";
 
 // TypeScript interface
 export interface IVote extends Document {
@@ -19,17 +18,7 @@ const voteSchema = new Schema<IVote>(
   {
     phone: {
       type: String,
-      required: true,
-      set: (v: string): string => {
-        const number = parsePhoneNumberFromString(v);
-        return number?.isValid() ? number.format("E.164") : v;
-      },
-      validate: {
-        validator: (v: string): boolean =>
-          parsePhoneNumberFromString(v)?.isValid() ?? false,
-        message: (props: { value: string }): string =>
-          `${props.value} is not a valid international phone number!`,
-      },
+      required: true, // phone is already validated by API
     },
     nominee: {
       type: Schema.Types.ObjectId,
@@ -52,7 +41,7 @@ const voteSchema = new Schema<IVote>(
     },
   },
   {
-    timestamps: true, // adds createdAt and updatedAt
+    timestamps: true,
   }
 );
 
