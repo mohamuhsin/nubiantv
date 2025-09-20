@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
   Dialog,
   DialogContent,
@@ -15,6 +15,14 @@ import FingerprintJS from "@fingerprintjs/fingerprintjs";
 import { cn } from "@/lib/utils";
 
 import { PhoneInputCustom } from "./phone-input";
+import ThankYouModal from "./Thankyou-modal";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 interface Nominee {
   _id: string;
@@ -28,48 +36,44 @@ interface Category {
 }
 
 interface VotingModalProps {
-  category: Category | null;
+  category: Category;
   isOpen: boolean;
   onClose: () => void;
-  onVoteSuccess?: () => void;
 }
 
 export default function VotingModal({
   category,
   isOpen,
   onClose,
-  onVoteSuccess,
 }: VotingModalProps) {
   const [nomineeId, setNomineeId] = useState("");
-  const [phone, setPhone] = useState<string | undefined>();
+  const [phone, setPhone] = useState<string>();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [fingerprint, setFingerprint] = useState<string | null>(null);
+  const [showThankYou, setShowThankYou] = useState(false);
+  const [selectedNominee, setSelectedNominee] = useState<Nominee | null>(null);
+  const timerRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Load device fingerprint
+  const selected = category.nominees.find((n) => n._id === nomineeId);
+
   useEffect(() => {
-    const loadFingerprint = async () => {
-      try {
-        const fp = await FingerprintJS.load();
-        const result = await fp.get();
-        setFingerprint(result.visitorId);
-      } catch {
-        setFingerprint(null);
-      }
-    };
-    loadFingerprint();
+    FingerprintJS.load()
+      .then((fp) => fp.get())
+      .then((result) => setFingerprint(result.visitorId))
+      .catch(() => setFingerprint(null));
   }, []);
 
-  // Reset modal state when closed
   useEffect(() => {
     if (!isOpen) {
       setNomineeId("");
       setPhone(undefined);
       setError(null);
+      setShowThankYou(false);
+      setSelectedNominee(null);
+      if (timerRef.current) clearTimeout(timerRef.current);
     }
   }, [isOpen]);
-
-  if (!isOpen || !category) return null;
 
   const handleSubmit = async () => {
     setError(null);
@@ -77,13 +81,14 @@ export default function VotingModal({
     if (!nomineeId) return setError("Please select a nominee.");
     if (!phone) return setError("Please enter your phone number.");
     if (!isValidPhoneNumber(phone))
-      return setError("Please enter a valid phone number.");
+      return setError("Please enter a valid international phone number.");
     if (!fingerprint)
       return setError("Unable to verify your device. Refresh and try again.");
 
     setLoading(true);
+
     try {
-      const res = await fetch("/api/request_otp", {
+      const res = await fetch("/api/submit-vote", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -94,74 +99,106 @@ export default function VotingModal({
         }),
       });
 
-      const data = await res.json();
+      const data = await res.json().catch(() => ({}));
 
-      if (!res.ok) {
-        setError(data.error || "Failed to submit vote. Please try again.");
+      if (res.ok) {
+        if (!selected)
+          return setError("Selected nominee not found. Please try again.");
+
+        setSelectedNominee(selected);
+        setShowThankYou(true);
+
+        if (timerRef.current) clearTimeout(timerRef.current);
+        timerRef.current = setTimeout(() => {
+          setShowThankYou(false);
+          onClose();
+        }, 7000);
       } else {
-        onVoteSuccess?.();
-        onClose();
+        setError(data.error || "Failed to submit vote. Please try again.");
       }
-    } catch {
+    } catch (err) {
+      console.error("Vote submit error:", err);
       setError("An error occurred. Please try again.");
     } finally {
       setLoading(false);
     }
   };
 
+  if (!isOpen) return null;
+
   return (
-    <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogPortal>
-        <DialogOverlay className="fixed inset-0 bg-black/50 backdrop-blur-sm" />
-        <DialogContent className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-lg sm:max-w-md md:max-w-xl rounded-3xl p-6 sm:p-8 md:p-10 flex flex-col items-center justify-center text-center shadow-2xl bg-white max-h-[90vh] overflow-y-auto">
-          <DialogHeader className="flex flex-col items-center justify-center text-center space-y-4">
-            <DialogTitle className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900">
-              Vote in {category.name}
-            </DialogTitle>
-          </DialogHeader>
+    <>
+      <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
+        <DialogPortal>
+          <DialogOverlay className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 sm:p-6" />
+          <DialogContent className="w-full max-w-lg sm:max-w-xl md:max-w-2xl rounded-2xl p-6 flex flex-col items-center justify-center text-center bg-white shadow-2xl">
+            {!showThankYou && (
+              <>
+                <DialogHeader className="flex flex-col items-center justify-center space-y-4 w-full text-center">
+                  <DialogTitle className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 w-full text-center">
+                    Vote in {category.name}
+                  </DialogTitle>
+                </DialogHeader>
 
-          {/* Nominee select using Tailwind */}
-          <div className="mt-6 w-full sm:w-4/5 md:w-3/5">
-            <select
-              value={nomineeId}
-              onChange={(e) => setNomineeId(e.target.value)}
-              className="w-full h-12 px-3 rounded-lg border border-gray-300 text-center text-sm sm:text-base focus:outline-none focus:ring-1 focus:ring-orange-500 focus:border-orange-500"
-            >
-              <option value="">-- Select Nominee --</option>
-              {category.nominees.map((n) => (
-                <option key={n._id} value={n._id}>
-                  {n.name}
-                </option>
-              ))}
-            </select>
-          </div>
+                <div className="mt-6 w-full flex justify-center">
+                  <Select value={nomineeId} onValueChange={setNomineeId}>
+                    <SelectTrigger className="w-full sm:w-4/5 md:w-3/5 lg:w-2/5 h-14 rounded-xl border border-gray-300 text-center text-base focus:ring-2 focus:ring-orange-500 focus:border-orange-500 shadow-sm hover:shadow-md transition">
+                      <SelectValue placeholder="-- Select Nominee --" />
+                    </SelectTrigger>
+                    <SelectContent className="w-full sm:w-4/5 md:w-3/5 lg:w-2/5 mx-auto">
+                      {category.nominees.map((n) => (
+                        <SelectItem key={n._id} value={n._id}>
+                          {n.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
 
-          {/* Phone input */}
-          <div className="mt-4 w-full sm:w-4/5 md:w-3/5">
-            <PhoneInputCustom
-              value={phone}
-              onChange={setPhone}
-              defaultCountry="UG"
-              error={error ?? null}
-            />
-          </div>
+                <div className="mt-6 w-full flex justify-center">
+                  <div className="w-full sm:w-4/5 md:w-3/5 lg:w-2/5">
+                    <PhoneInputCustom
+                      value={phone}
+                      onChange={setPhone}
+                      defaultCountry="UG"
+                      error={error ?? null}
+                    />
+                  </div>
+                </div>
 
-          {/* Error */}
-          {error && <p className="text-red-500 text-sm mt-3">{error}</p>}
+                {error && (
+                  <p className="text-red-500 text-sm mt-3 text-center font-medium">
+                    {error}
+                  </p>
+                )}
 
-          {/* Submit button */}
-          <Button
-            onClick={handleSubmit}
-            className={cn(
-              "mt-6 w-full sm:w-auto px-6 py-3 font-semibold text-white rounded-lg",
-              "bg-[#ff7d1d] hover:bg-[#e66c00] transition-all duration-300 text-sm sm:text-base md:text-lg"
+                <Button
+                  onClick={handleSubmit}
+                  className={cn(
+                    "mt-8 w-full sm:w-4/5 md:w-3/5 lg:w-2/5 px-6 py-4 font-semibold text-white rounded-xl",
+                    "bg-[#ff7d1d] hover:bg-[#e66c00] transition-all duration-300 text-lg shadow-md hover:shadow-lg"
+                  )}
+                  disabled={loading}
+                >
+                  {loading ? "Submitting Vote..." : "Submit Vote"}
+                </Button>
+              </>
             )}
-            disabled={loading}
-          >
-            {loading ? "Submitting Vote..." : "Submit Vote"}
-          </Button>
-        </DialogContent>
-      </DialogPortal>
-    </Dialog>
+          </DialogContent>
+        </DialogPortal>
+      </Dialog>
+
+      {showThankYou && selectedNominee && (
+        <ThankYouModal
+          isOpen={showThankYou}
+          onClose={() => {
+            setShowThankYou(false);
+            onClose();
+          }}
+          nomineeName={selectedNominee.name}
+          categoryName={category.name}
+        />
+      )}
+    </>
   );
 }

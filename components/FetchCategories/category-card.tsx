@@ -5,7 +5,7 @@ import Image from "next/image";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import ResultsList from "./result-list";
-import VoteModal from "../Vote/vote-modal";
+import VotingModal from "../Vote/voting-modal";
 
 interface Nominee {
   _id: string;
@@ -62,8 +62,8 @@ export default function CategoryCard({
           Vote Now
         </Button>
 
-        <VoteModal
-          open={modalOpen}
+        <VotingModal
+          isOpen={modalOpen}
           onClose={() => setModalOpen(false)}
           category={category}
         />

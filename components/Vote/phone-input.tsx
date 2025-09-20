@@ -16,20 +16,20 @@ export function PhoneInputCustom({
   error = null,
 }: PhoneInputProps) {
   return (
-    <div className="w-full">
+    <div className="w-full flex flex-col items-center">
       <PhoneInput
         international
         countryCallingCodeEditable={false}
-        // cast defaultCountry to any to bypass TS issue
         defaultCountry={defaultCountry as any}
         value={value}
         onChange={onChange}
         placeholder="Enter phone number"
-        className={`w-full h-12 px-3 text-sm rounded-lg border ${
-          error ? "border-red-500" : "border-gray-300"
-        } focus:outline-none focus:ring-1 focus:ring-orange-500 focus:border-orange-500`}
+        className={`w-full sm:w-full md:w-full px-4 h-14 text-base rounded-xl border transition-shadow ${
+          error
+            ? "border-red-500 focus:ring-red-500 focus:border-red-500"
+            : "border-gray-300 focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+        } shadow-sm hover:shadow-md focus:shadow-lg outline-none`}
       />
-      {error && <p className="mt-1 text-sm text-red-500">{error}</p>}
     </div>
   );
 }
