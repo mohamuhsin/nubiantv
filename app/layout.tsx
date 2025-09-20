@@ -1,3 +1,4 @@
+import { Toaster } from "@/components/ui/sonner";
 import type { Metadata } from "next";
 import { Montserrat, Geist, Geist_Mono } from "next/font/google";
 import Navbar from "@/components/Navbar/navbar";
@@ -42,6 +43,8 @@ export default function RootLayout({
           {children}
           <Follow />
           <Analytics />
+          {/* Sonner Toaster for global toast notifications */}
+          <Toaster position="top-center" richColors />
         </Providers>
       </body>
     </html>

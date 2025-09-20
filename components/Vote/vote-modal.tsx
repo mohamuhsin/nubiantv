@@ -1,6 +1,6 @@
 "use client";
 
-import { Dialog } from "@/components/ui/dialog";
+import { useState, useEffect } from "react";
 import { useVotingStatus } from "@/hooks/useVotingStatus";
 import CountdownModal from "./countdown-modal";
 import VotingModal from "./voting-modal";
@@ -20,32 +20,32 @@ interface Category {
 interface VoteModalProps {
   open: boolean;
   onClose: () => void;
-  category: Category | null; // <-- pass category here
-  onVoteSuccess?: () => void;
+  category: Category | null;
 }
 
-export default function VoteModal({
-  open,
-  onClose,
-  category,
-  onVoteSuccess,
-}: VoteModalProps) {
+export default function VoteModal({ open, category }: VoteModalProps) {
   const { status, votingStart } = useVotingStatus();
+  const [isVotingOpen, setIsVotingOpen] = useState(open);
 
-  if (!category && status === "during") return null; // prevent error
+  useEffect(() => {
+    setIsVotingOpen(open);
+  }, [open]);
+
+  if (status === "during" && !category) return null;
 
   return (
-    <Dialog open={open} onOpenChange={onClose}>
+    <>
       {status === "before" && <CountdownModal startDate={votingStart} />}
+
       {status === "during" && category && (
         <VotingModal
           category={category}
-          isOpen={true}
-          onClose={onClose}
-          onVoteSuccess={onVoteSuccess}
+          isOpen={isVotingOpen}
+          onClose={() => setIsVotingOpen(false)}
         />
       )}
+
       {status === "after" && <EndedModal />}
-    </Dialog>
+    </>
   );
 }
