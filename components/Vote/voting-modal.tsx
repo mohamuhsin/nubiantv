@@ -113,7 +113,7 @@ export default function VotingModal({
         timerRef.current = setTimeout(() => {
           setShowThankYou(false);
           onClose();
-        }, 7000);
+        }, 10000);
       } else {
         setError(data.error || "Failed to submit vote. Please try again.");
       }
