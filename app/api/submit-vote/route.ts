@@ -1,45 +1,55 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import { NextRequest, NextResponse } from "next/server";
 import { connectDB } from "@/lib/db";
 import Vote from "@/models/votes";
 import SuspiciousAttempt from "@/models/suspiciousAttempt";
 import { parsePhoneNumberFromString } from "libphonenumber-js";
-import { rateLimiter } from "@/lib/rateLimiter"; // rate-limiter-flexible instance
+import { getRateLimiter } from "@/lib/rateLimiter";
 
-export async function POST(req: Request) {
+interface VoteRequestBody {
+  phone: string;
+  nomineeId: string;
+  categoryId: string;
+  fingerprint: string;
+  userAgent?: string;
+}
+
+const rateLimiter = getRateLimiter("rl_votes", 30, 60);
+
+export async function POST(req: NextRequest) {
   await connectDB();
 
-  const forwardedFor = req.headers.get("x-forwarded-for");
   const ip =
-    forwardedFor?.split(",")[0].trim() ||
+    req.headers.get("x-forwarded-for")?.split(",")[0].trim() ||
     req.headers.get("x-real-ip") ||
     "unknown";
 
-  const { phone, nomineeId, categoryId, fingerprint, userAgent } =
-    await req.json();
+  const body: VoteRequestBody = await req.json();
+
+  const { phone, nomineeId, categoryId, fingerprint, userAgent } = body;
 
   if (!phone || !nomineeId || !categoryId || !fingerprint) {
-    return new Response(JSON.stringify({ error: "Missing required fields" }), {
-      status: 400,
-    });
-  }
-
-  // Parse and validate international phone number
-  const phoneNumber = parsePhoneNumberFromString(phone);
-  if (!phoneNumber?.isValid()) {
-    return new Response(
-      JSON.stringify({ error: "Invalid international phone number" }),
+    return NextResponse.json(
+      { error: "Missing required fields" },
       { status: 400 }
     );
   }
 
-  const e164Phone = phoneNumber.number; // E.164 format
+  // Validate phone
+  const phoneNumber = parsePhoneNumberFromString(phone);
+  if (!phoneNumber?.isValid()) {
+    return NextResponse.json(
+      { error: "Invalid phone number" },
+      { status: 400 }
+    );
+  }
+  const e164Phone = phoneNumber.number;
 
-  // Redis rate limiting
+  // Rate limiting
   if (rateLimiter) {
     try {
-      await rateLimiter.consume(`${ip}:${e164Phone}`); // consume 1 point
+      await rateLimiter.consume(`${ip}:${e164Phone}`);
     } catch {
-      // Rate limit exceeded
       await SuspiciousAttempt.create({
         ip,
         phone: e164Phone,
@@ -48,8 +58,8 @@ export async function POST(req: Request) {
         userAgent,
         reason: "Rate limit exceeded",
       });
-      return new Response(
-        JSON.stringify({ error: "Too many requests, please try later" }),
+      return NextResponse.json(
+        { error: "Too many requests, try later" },
         { status: 429 }
       );
     }
@@ -65,21 +75,20 @@ export async function POST(req: Request) {
       userAgent,
     });
 
-    return new Response(JSON.stringify({ success: true, voteId: vote._id }), {
-      status: 200,
-    });
+    return NextResponse.json(
+      { success: true, voteId: vote._id },
+      { status: 200 }
+    );
   } catch (err: any) {
     console.error("Vote submission error:", err);
 
     if (err.code === 11000) {
-      return new Response(
-        JSON.stringify({ error: "You have already voted in this category" }),
+      return NextResponse.json(
+        { error: "You have already voted in this category" },
         { status: 409 }
       );
     }
 
-    return new Response(JSON.stringify({ error: "Something went wrong" }), {
-      status: 500,
-    });
+    return NextResponse.json({ error: "Server error" }, { status: 500 });
   }
 }
