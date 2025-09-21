@@ -41,7 +41,8 @@ export default function CountdownModal({ startDate }: CountdownModalProps) {
         </DialogDescription>
       </DialogHeader>
 
-      <div className="flex flex-wrap justify-center items-center gap-3 sm:gap-6 py-6 w-full">
+      {/* Countdown container */}
+      <div className="flex overflow-x-auto gap-3 sm:gap-6 py-6 w-full justify-center">
         {countdownItems.map((item, idx) => (
           <div
             key={idx}
