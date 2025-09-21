@@ -10,6 +10,7 @@ import {
   DialogOverlay,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
 import { isValidPhoneNumber } from "libphonenumber-js";
 import FingerprintJS from "@fingerprintjs/fingerprintjs";
 import { cn } from "@/lib/utils";
@@ -104,7 +105,7 @@ export default function VotingModal({
       if (res.ok) {
         if (!selected)
           return setError("Selected nominee not found. Please try again.");
-
+        toast.success("You voted successfully!");
         setSelectedNominee(selected);
         setShowThankYou(true);
 
@@ -130,33 +131,45 @@ export default function VotingModal({
     <>
       <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
         <DialogPortal>
-          <DialogOverlay className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 sm:p-6" />
-          <DialogContent className="w-full max-w-lg sm:max-w-xl md:max-w-2xl rounded-2xl p-6 flex flex-col items-center justify-center text-center bg-white shadow-2xl">
+          <DialogOverlay className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4" />
+
+          <DialogContent
+            className={cn(
+              "w-full max-w-[95vw] sm:max-w-[600px] md:max-w-[700px] lg:max-w-[800px] xl:max-w-[900px]",
+              "rounded-2xl px-4 sm:px-6 md:px-8 lg:px-10 py-6 sm:py-8 md:py-10 lg:py-12",
+              "flex flex-col items-center justify-center text-center bg-white shadow-2xl"
+            )}
+          >
             {!showThankYou && (
               <>
+                {/* Header */}
                 <DialogHeader className="flex flex-col items-center justify-center space-y-4 w-full text-center">
-                  <DialogTitle className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 w-full text-center">
+                  <DialogTitle className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold text-gray-900 w-full text-center leading-tight">
                     Vote in {category.name}
                   </DialogTitle>
                 </DialogHeader>
 
+                {/* Nominee select */}
                 <div className="mt-6 w-full flex justify-center">
-                  <Select value={nomineeId} onValueChange={setNomineeId}>
-                    <SelectTrigger className="w-full sm:w-4/5 md:w-3/5 lg:w-2/5 h-14 rounded-xl border border-gray-300 text-center text-base focus:ring-2 focus:ring-orange-500 focus:border-orange-500 shadow-sm hover:shadow-md transition">
-                      <SelectValue placeholder="-- Select Nominee --" />
-                    </SelectTrigger>
-                    <SelectContent className="w-full sm:w-4/5 md:w-3/5 lg:w-2/5 mx-auto">
-                      {category.nominees.map((n) => (
-                        <SelectItem key={n._id} value={n._id}>
-                          {n.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  <div className="w-full max-w-[600px]">
+                    <Select value={nomineeId} onValueChange={setNomineeId}>
+                      <SelectTrigger className="w-full h-14 rounded-xl border border-gray-300 text-base focus:ring-2 focus:ring-orange-500 focus:border-orange-500 shadow-sm hover:shadow-md transition">
+                        <SelectValue placeholder="-- Select Nominee --" />
+                      </SelectTrigger>
+                      <SelectContent className="w-full">
+                        {category.nominees.map((n) => (
+                          <SelectItem key={n._id} value={n._id}>
+                            {n.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
                 </div>
 
+                {/* Phone input */}
                 <div className="mt-6 w-full flex justify-center">
-                  <div className="w-full sm:w-4/5 md:w-3/5 lg:w-2/5">
+                  <div className="w-full max-w-[600px]">
                     <PhoneInputCustom
                       value={phone}
                       onChange={setPhone}
@@ -166,12 +179,14 @@ export default function VotingModal({
                   </div>
                 </div>
 
+                {/* Error message */}
                 {error && (
-                  <p className="text-red-500 text-sm mt-3 text-center font-medium">
+                  <p className="text-red-500 text-sm mt-3 text-center font-medium break-words">
                     {error}
                   </p>
                 )}
 
+                {/* Submit button */}
                 <Button
                   onClick={handleSubmit}
                   className={cn(
