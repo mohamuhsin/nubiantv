@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { Dialog } from "@/components/ui/dialog";
 import { useVotingStatus } from "@/hooks/useVotingStatus";
 import CountdownModal from "./countdown-modal";
 import VotingModal from "./voting-modal";
@@ -23,29 +23,32 @@ interface VoteModalProps {
   category: Category | null;
 }
 
-export default function VoteModal({ open, category }: VoteModalProps) {
+export default function VoteModal({ open, onClose, category }: VoteModalProps) {
   const { status, votingStart } = useVotingStatus();
-  const [isVotingOpen, setIsVotingOpen] = useState(open);
 
-  useEffect(() => {
-    setIsVotingOpen(open);
-  }, [open]);
-
+  // Nothing to render if voting is during but no category is selected
   if (status === "during" && !category) return null;
 
   return (
     <>
-      {status === "before" && <CountdownModal startDate={votingStart} />}
-
-      {status === "during" && category && (
-        <VotingModal
-          category={category}
-          isOpen={isVotingOpen}
-          onClose={() => setIsVotingOpen(false)}
-        />
+      {/* Countdown before voting */}
+      {status === "before" && (
+        <Dialog open={open} onOpenChange={(isOpen) => !isOpen && onClose()}>
+          <CountdownModal startDate={votingStart} />
+        </Dialog>
       )}
 
-      {status === "after" && <EndedModal />}
+      {/* Voting is live */}
+      {status === "during" && category && (
+        <VotingModal category={category} isOpen={open} onClose={onClose} />
+      )}
+
+      {/* Voting ended */}
+      {status === "after" && (
+        <Dialog open={open} onOpenChange={(isOpen) => !isOpen && onClose()}>
+          <EndedModal />
+        </Dialog>
+      )}
     </>
   );
 }

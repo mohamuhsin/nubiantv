@@ -5,7 +5,7 @@ import Image from "next/image";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import ResultsList from "./result-list";
-import VotingModal from "../Vote/voting-modal";
+import VoteModal from "../Vote/vote-modal"; // <-- use the wrapper here
 
 interface Nominee {
   _id: string;
@@ -54,6 +54,7 @@ export default function CategoryCard({
           {category.name}
         </h3>
 
+        {/* Use the wrapper VoteModal instead of VotingModal */}
         <Button
           style={{ backgroundColor: "#ff7d1d" }}
           className="w-full py-2 font-semibold text-white hover:bg-[#e66c00] transition-all duration-300 rounded-lg text-sm sm:text-base md:text-base"
@@ -62,8 +63,8 @@ export default function CategoryCard({
           Vote Now
         </Button>
 
-        <VotingModal
-          isOpen={modalOpen}
+        <VoteModal
+          open={modalOpen}
           onClose={() => setModalOpen(false)}
           category={category}
         />
