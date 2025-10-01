@@ -4,12 +4,16 @@ import { useState } from "react";
 import Heading from "@/components/Heading/heading";
 import { CategorySearch } from "@/components/Filter/cat-filter";
 import Categories from "@/components/FetchCategories/categories";
+import { AwardNotice } from "@/components/AwardsNotice/awards-notice";
 
 export default function AwardsPage() {
   const [searchQuery, setSearchQuery] = useState("");
 
   return (
     <div className="min-h-screen flex flex-col">
+      {/*Top Announcement Banner */}
+      <AwardNotice />
+
       {/* Top Navigation */}
       <header className="py-6">{/* <Navbar /> */}</header>
 
@@ -24,8 +28,6 @@ export default function AwardsPage() {
         <section className="py-14 px-4 sm:px-6 lg:px-8 w-full">
           {/* Search Component */}
           <div className="mb-16 w-full">
-            {" "}
-            {/* Increased from mb-10 to mb-16 */}
             <CategorySearch value={searchQuery} onChange={setSearchQuery} />
           </div>
 
