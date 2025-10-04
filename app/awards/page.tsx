@@ -26,17 +26,63 @@ export default function AwardsPage() {
 
       {/* Main Content */}
       <main className="flex-grow w-full">
-        <section className="py-14 px-4 sm:px-6 lg:px-8 w-full space-y-12">
+        {/* Categories Section */}
+        <section
+          aria-labelledby="categories-heading"
+          className="py-14 px-4 sm:px-6 lg:px-8 w-full space-y-12"
+        >
+          {/* Section Heading */}
+          <div className="text-center max-w-2xl mx-auto">
+            <h2
+              id="categories-heading"
+              className="
+                font-extrabold
+                text-[24px] sm:text-[28px] md:text-[32px]
+                leading-[32px] sm:leading-[36px] md:leading-[40px]
+                text-[oklch(0.21_0.034_264.665)]
+              "
+            >
+              Vote by Category
+            </h2>
+            <p className="mt-3 text-sm sm:text-base text-gray-600 dark:text-gray-400">
+              Explore categories, search nominees, and vote.
+            </p>
+          </div>
+
           {/* Search Component */}
-          <div className="w-full">
+          <div className="w-full max-w-3xl mx-auto">
             <CategorySearch value={searchQuery} onChange={setSearchQuery} />
           </div>
 
           {/* Categories List */}
-          <Categories searchQuery={searchQuery} />
+          <div className="max-w-6xl mx-auto">
+            <Categories searchQuery={searchQuery} />
+          </div>
+        </section>
 
-          {/* ✅ Votes Section */}
-          <VotesSoFar />
+        {/* Voting Statistics Section */}
+        <section
+          aria-labelledby="stats-heading"
+          className="py-14 px-4 sm:px-6 lg:px-8 w-full bg-gray-50 dark:bg-gray-800"
+        >
+          <div className="text-center max-w-2xl mx-auto">
+            <h2
+              id="stats-heading"
+              className="
+                text-center font-extrabold
+                text-[24px] sm:text-[28px] md:text-[32px]
+                leading-[32px] sm:leading-[36px] md:leading-[40px]
+                mb-8
+                text-[oklch(0.21_0.034_264.665)]
+              "
+            >
+              Voting Statistics
+            </h2>
+          </div>
+
+          <div className="max-w-6xl mx-auto">
+            <VotesSoFar />
+          </div>
         </section>
       </main>
     </div>

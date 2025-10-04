@@ -68,14 +68,14 @@ export function AwardNotice() {
             </AlertTitle>
             <AlertDescription className="text-sm sm:text-base">
               Ends on <strong>15th October 2025</strong> —{" "}
-              <span className="font-mono font-bold text-base sm:text-lg">
+              <span className="font-mono font-bold text-base sm:text-lg whitespace-nowrap">
                 {days}d {hours}h {minutes}m {seconds}s
               </span>
             </AlertDescription>
           </div>
         </div>
 
-        {/* Close button (centered under content on mobile, top-right on larger screens) */}
+        {/* Close button */}
         <Button
           variant="ghost"
           size="icon"
