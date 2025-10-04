@@ -1,15 +1,11 @@
 "use client";
 
-import { useState } from "react";
 import Heading from "@/components/Heading/heading";
-import { CategorySearch } from "@/components/Filter/cat-filter";
 import Categories from "@/components/FetchCategories/categories";
 import { AwardNotice } from "@/components/AwardsNotice/awards-notice";
 import VotesSoFar from "@/components/Vote/votes-sofar";
 
 export default function AwardsPage() {
-  const [searchQuery, setSearchQuery] = useState("");
-
   return (
     <div className="min-h-screen flex flex-col">
       {/* Top Announcement Banner */}
@@ -45,18 +41,13 @@ export default function AwardsPage() {
               Vote by Category
             </h2>
             <p className="mt-3 text-sm sm:text-base text-gray-600 dark:text-gray-400">
-              Explore categories, search nominees, and vote.
+              Explore the award categories and cast your vote.
             </p>
-          </div>
-
-          {/* Search Component */}
-          <div className="w-full max-w-3xl mx-auto">
-            <CategorySearch value={searchQuery} onChange={setSearchQuery} />
           </div>
 
           {/* Categories List */}
           <div className="max-w-6xl mx-auto">
-            <Categories searchQuery={searchQuery} />
+            <Categories />
           </div>
         </section>
 
