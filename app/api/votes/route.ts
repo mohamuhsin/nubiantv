@@ -14,11 +14,14 @@ export async function GET() {
       (phones) => phones.length
     );
 
-    // Votes today (since midnight)
-    const startOfToday = new Date();
-    startOfToday.setHours(0, 0, 0, 0);
+    // Votes today (midnight UTC)
+    const now = new Date();
+    const startOfTodayUTC = new Date(
+      Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate())
+    );
+
     const votesToday = await Vote.countDocuments({
-      createdAt: { $gte: startOfToday },
+      createdAt: { $gte: startOfTodayUTC },
     });
 
     // Recent votes (for debugging/UI if needed)

@@ -99,7 +99,7 @@ export default function VotesSoFar() {
             <StatCard
               title="Votes Today"
               value={data?.votesToday}
-              description="Votes in the last 24h"
+              description="Votes in the last 24hrs"
               isLoading={isLoading}
             />
           </>
