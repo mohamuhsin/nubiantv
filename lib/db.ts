@@ -21,14 +21,25 @@ export async function connectDB(): Promise<typeof mongoose> {
 
   if (!cached.promise) {
     if (!process.env.MONGODB_URI) {
-      throw new Error("MONGODB_URI is not defined in .env");
+      throw new Error("❌ MONGODB_URI is not defined in .env");
     }
-    cached.promise = mongoose.connect(process.env.MONGODB_URI);
+
+    cached.promise = mongoose.connect(process.env.MONGODB_URI, {
+      dbName: process.env.MONGODB_DB || undefined, // optional, if you set it
+    });
   }
 
-  cached.conn = await cached.promise;
-  globalThis.mongoose = cached;
+  try {
+    cached.conn = await cached.promise;
+    globalThis.mongoose = cached;
 
-  console.log("✅ Connected to MongoDB");
-  return cached.conn;
+    if (process.env.NODE_ENV !== "production") {
+      console.log("✅ Connected to MongoDB");
+    }
+
+    return cached.conn;
+  } catch (err) {
+    cached.promise = null;
+    throw err;
+  }
 }

@@ -16,34 +16,17 @@ export interface IVote extends Document {
 // Vote schema
 const voteSchema = new Schema<IVote>(
   {
-    phone: {
-      type: String,
-      required: true, // phone is already validated by API
-    },
-    nominee: {
-      type: Schema.Types.ObjectId,
-      ref: "Nominee",
-      required: true,
-    },
-    category: {
-      type: Schema.Types.ObjectId,
-      ref: "Category",
-      required: true,
-    },
-    fingerprint: {
-      type: String,
-    },
-    ip: {
-      type: String,
-    },
-    userAgent: {
-      type: String,
-    },
+    phone: { type: String, required: true },
+    nominee: { type: Schema.Types.ObjectId, ref: "Nominee", required: true },
+    category: { type: Schema.Types.ObjectId, ref: "Category", required: true },
+    fingerprint: { type: String },
+    ip: { type: String },
+    userAgent: { type: String },
   },
-  {
-    timestamps: true,
-  }
+  { timestamps: true }
 );
+
+// ✅ Indexes
 
 // Prevent multiple votes per phone per category
 voteSchema.index({ phone: 1, category: 1 }, { unique: true });
@@ -54,8 +37,14 @@ voteSchema.index(
   { unique: true, partialFilterExpression: { fingerprint: { $exists: true } } }
 );
 
-// Optional: index for faster queries by category
+// Speeds up queries by category
 voteSchema.index({ category: 1 });
+
+// Speeds up "recent votes" queries
+voteSchema.index({ createdAt: -1 });
+
+// Speeds up unique voter counts
+voteSchema.index({ phone: 1 });
 
 // Model creation (avoid recompiling in dev)
 const Vote = mongoose.models.Vote || mongoose.model<IVote>("Vote", voteSchema);
