@@ -1,4 +1,3 @@
-// models/Vote.ts
 import mongoose, { Document, Schema } from "mongoose";
 
 // TypeScript interface
@@ -31,11 +30,7 @@ const voteSchema = new Schema<IVote>(
 // Prevent multiple votes per phone per category
 voteSchema.index({ phone: 1, category: 1 }, { unique: true });
 
-// Prevent multiple votes per device fingerprint per category
-voteSchema.index(
-  { fingerprint: 1, category: 1 },
-  { unique: true, partialFilterExpression: { fingerprint: { $exists: true } } }
-);
+// (❌ Removed fingerprint unique constraint — it was blocking valid voters)
 
 // Speeds up queries by category
 voteSchema.index({ category: 1 });
@@ -45,6 +40,18 @@ voteSchema.index({ createdAt: -1 });
 
 // Speeds up unique voter counts
 voteSchema.index({ phone: 1 });
+
+// ✅ Optional: cleaner handling of blank fingerprints
+voteSchema.pre("save", function (next) {
+  if (
+    !this.fingerprint ||
+    this.fingerprint === "undefined" ||
+    this.fingerprint === "null"
+  ) {
+    this.fingerprint = undefined;
+  }
+  next();
+});
 
 // Model creation (avoid recompiling in dev)
 const Vote = mongoose.models.Vote || mongoose.model<IVote>("Vote", voteSchema);
