@@ -1,5 +1,3 @@
-"use client";
-
 import mongoose, { Document, Schema } from "mongoose";
 
 export interface ISuspiciousAttempt extends Document {
@@ -10,6 +8,7 @@ export interface ISuspiciousAttempt extends Document {
   userAgent?: string;
   reason: string;
   createdAt: Date;
+  updatedAt?: Date;
 }
 
 const suspiciousAttemptSchema = new Schema<ISuspiciousAttempt>(
@@ -22,14 +21,15 @@ const suspiciousAttemptSchema = new Schema<ISuspiciousAttempt>(
     reason: { type: String, required: true },
   },
   {
-    timestamps: { createdAt: true, updatedAt: false }, // only track createdAt
+    timestamps: { createdAt: true, updatedAt: false },
   }
 );
 
-// Optional: index for fast lookups by phone or IP
+// 📈 Indexes for faster analytics and reporting
 suspiciousAttemptSchema.index({ phone: 1 });
 suspiciousAttemptSchema.index({ ip: 1 });
 suspiciousAttemptSchema.index({ category: 1 });
+suspiciousAttemptSchema.index({ createdAt: -1 });
 
 const SuspiciousAttempt =
   mongoose.models.SuspiciousAttempt ||

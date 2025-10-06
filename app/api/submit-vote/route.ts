@@ -10,7 +10,7 @@ interface VoteRequestBody {
   phone: string;
   nomineeId: string;
   categoryId: string;
-  fingerprint: string;
+  fingerprint?: string;
   userAgent?: string;
 }
 
@@ -25,27 +25,35 @@ export async function POST(req: NextRequest) {
     "unknown";
 
   const body: VoteRequestBody = await req.json();
-
   const { phone, nomineeId, categoryId, fingerprint, userAgent } = body;
 
-  if (!phone || !nomineeId || !categoryId || !fingerprint) {
+  if (!phone || !nomineeId || !categoryId) {
     return NextResponse.json(
       { error: "Missing required fields" },
       { status: 400 }
     );
   }
 
-  // Validate phone
-  const phoneNumber = parsePhoneNumberFromString(phone);
+  // ✅ Validate and normalize phone number (always +256 format)
+  const phoneNumber = parsePhoneNumberFromString(phone, "UG");
   if (!phoneNumber?.isValid()) {
     return NextResponse.json(
       { error: "Invalid phone number" },
       { status: 400 }
     );
   }
-  const e164Phone = phoneNumber.number;
+  const e164Phone = phoneNumber.number; // e.g. +256701234567
 
-  // Rate limiting
+  // ✅ Clean fingerprint to avoid "undefined"/"null" strings
+  const safeFingerprint =
+    fingerprint &&
+    fingerprint !== "undefined" &&
+    fingerprint !== "null" &&
+    fingerprint.trim() !== ""
+      ? fingerprint
+      : undefined;
+
+  // ✅ Rate limit by IP + phone
   if (rateLimiter) {
     try {
       await rateLimiter.consume(`${ip}:${e164Phone}`);
@@ -54,7 +62,7 @@ export async function POST(req: NextRequest) {
         ip,
         phone: e164Phone,
         category: categoryId,
-        fingerprint,
+        fingerprint: safeFingerprint,
         userAgent,
         reason: "Rate limit exceeded",
       });
@@ -66,11 +74,25 @@ export async function POST(req: NextRequest) {
   }
 
   try {
+    // ✅ Soft duplicate check (by phone OR fingerprint)
+    const existingVote = await Vote.findOne({
+      category: categoryId,
+      $or: [{ phone: e164Phone }, { fingerprint: safeFingerprint }],
+    });
+
+    if (existingVote) {
+      return NextResponse.json(
+        { error: "You have already voted in this category" },
+        { status: 409 }
+      );
+    }
+
+    // ✅ Create the new vote
     const vote = await Vote.create({
       phone: e164Phone,
       nominee: nomineeId,
       category: categoryId,
-      fingerprint,
+      fingerprint: safeFingerprint,
       ip,
       userAgent,
     });
@@ -80,8 +102,9 @@ export async function POST(req: NextRequest) {
       { status: 200 }
     );
   } catch (err: any) {
-    console.error("Vote submission error:", err);
+    console.error("❌ Vote submission error:", err);
 
+    // MongoDB duplicate key safeguard (shouldn’t occur now)
     if (err.code === 11000) {
       return NextResponse.json(
         { error: "You have already voted in this category" },
