@@ -1,42 +1,57 @@
 import { connectDB } from "@/lib/db";
 import Vote from "@/models/votes";
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
+import moment from "moment-timezone";
 
-export async function GET() {
+export async function GET(req: NextRequest) {
   try {
     await connectDB();
 
-    // Total votes (all time)
+    // 🕛 Extract query params
+    const url = new URL(req.url);
+    const timezone = url.searchParams.get("timezone") || "Africa/Kampala";
+    const limitParam = url.searchParams.get("limit");
+    const limit = Math.min(parseInt(limitParam || "50", 10), 200);
+
+    // 🧮 Total votes
     const totalVotes = await Vote.countDocuments();
 
-    // Unique voters (distinct phone numbers)
+    // 👥 Unique voters
     const uniqueVoters = await Vote.distinct("phone").then(
       (phones) => phones.length
     );
 
-    // Votes today (midnight UTC)
-    const now = new Date();
-    const startOfTodayUTC = new Date(
-      Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate())
-    );
+    // 🕐 Midnight in user’s timezone
+    const startOfToday = moment.tz(timezone).startOf("day").toDate();
 
     const votesToday = await Vote.countDocuments({
-      createdAt: { $gte: startOfTodayUTC },
+      createdAt: { $gte: startOfToday },
     });
 
-    // Recent votes (for debugging/UI if needed)
-    const votes = await Vote.find().sort({ createdAt: -1 }).limit(50);
+    // 🧾 Recent votes (for admin view or debugging)
+    const recentVotes = await Vote.find()
+      .sort({ createdAt: -1 })
+      .limit(limit)
+      .lean();
 
-    return NextResponse.json({
+    const responseData = {
       totalVotes,
       uniqueVoters,
       votesToday,
-      votes,
+      timezone,
+      recentVotes,
+    };
+
+    return NextResponse.json(responseData, {
+      status: 200,
+      headers: {
+        "Cache-Control": "public, max-age=15, stale-while-revalidate=30",
+      },
     });
   } catch (err) {
-    console.error("❌ Error fetching votes:", err);
+    console.error("❌ Error fetching vote summary:", err);
     return NextResponse.json(
-      { error: "Failed to fetch votes" },
+      { error: "Failed to fetch vote summary" },
       { status: 500 }
     );
   }

@@ -8,11 +8,16 @@ interface VoteResponse {
   totalVotes: number;
   uniqueVoters: number;
   votesToday: number;
+  timezone?: string;
 }
 
 async function fetchVotes(): Promise<VoteResponse> {
-  const res = await fetch("/api/votes");
-  if (!res.ok) throw new Error("Failed to fetch votes");
+  const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+  const res = await fetch(
+    `/api/votes?timezone=${encodeURIComponent(timezone)}`
+  );
+
+  if (!res.ok) throw new Error("Failed to fetch votes summary");
   return res.json();
 }
 
@@ -30,7 +35,7 @@ function StatCard({
   return (
     <Card className="flex flex-col w-full max-w-sm mx-auto rounded-xl shadow-md hover:shadow-lg transition-shadow duration-300 bg-white dark:bg-gray-900 overflow-hidden">
       <CardContent className="flex flex-col gap-2 px-4 pt-4 pb-4 flex-1 items-center text-center">
-        <h3 className="font-bold text-gray-900 text-lg sm:text-lg md:text-xl leading-snug">
+        <h3 className="font-bold text-gray-900 dark:text-gray-50 text-lg sm:text-lg md:text-xl leading-snug">
           {title}
         </h3>
         {isLoading ? (
@@ -58,9 +63,9 @@ function StatCard({
 
 export default function VotesSoFar() {
   const { data, isLoading, isError } = useQuery<VoteResponse>({
-    queryKey: ["votes"],
+    queryKey: ["votes-summary"],
     queryFn: fetchVotes,
-    refetchInterval: 5000,
+    refetchInterval: 5000, // refresh every 5 seconds
     staleTime: 10_000,
   });
 
@@ -99,7 +104,7 @@ export default function VotesSoFar() {
             <StatCard
               title="Votes Today"
               value={data?.votesToday}
-              description="Votes in the last 24hrs"
+              description={`Since 12:00 AM (${data?.timezone || "Local"})`}
               isLoading={isLoading}
             />
           </>

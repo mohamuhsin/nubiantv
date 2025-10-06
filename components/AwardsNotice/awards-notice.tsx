@@ -33,7 +33,6 @@ function useCountdown(targetDate: Date) {
         });
       }
     }, 1000);
-
     return () => clearInterval(interval);
   }, [targetDate]);
 
@@ -45,11 +44,16 @@ export function AwardNotice() {
   const targetDate = new Date("2025-10-15T23:59:59");
   const { days, hours, minutes, seconds, finished } = useCountdown(targetDate);
 
+  // ⏱️ Hide after 20 seconds
+  useEffect(() => {
+    const timer = setTimeout(() => setVisible(false), 20000);
+    return () => clearTimeout(timer);
+  }, []);
+
+  // Hide when countdown finishes
   useEffect(() => {
     if (finished) setVisible(false);
   }, [finished]);
-
-  const handleClose = () => setVisible(false);
 
   if (!visible) return null;
 
@@ -67,7 +71,7 @@ export function AwardNotice() {
               Nubian TV Awards 2025
             </AlertTitle>
             <AlertDescription className="text-sm sm:text-base">
-              Ends on <strong>15th October 2025</strong> —{" "}
+              Ends on <strong>15 October 2025</strong> —{" "}
               <span className="font-mono font-bold text-base sm:text-lg whitespace-nowrap">
                 {days}d {hours}h {minutes}m {seconds}s
               </span>
@@ -81,7 +85,7 @@ export function AwardNotice() {
           size="icon"
           aria-label="Close announcement"
           className="absolute right-3 top-3 text-blue-700 hover:text-blue-900 sm:static sm:mt-2"
-          onClick={handleClose}
+          onClick={() => setVisible(false)}
         >
           <X className="h-5 w-5" />
         </Button>
