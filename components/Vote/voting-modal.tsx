@@ -12,9 +12,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { isValidPhoneNumber } from "libphonenumber-js";
-import FingerprintJS from "@fingerprintjs/fingerprintjs";
 import { cn } from "@/lib/utils";
-
 import { PhoneInputCustom } from "./phone-input";
 import ThankYouModal from "./Thankyou-modal";
 import {
@@ -51,20 +49,13 @@ export default function VotingModal({
   const [phone, setPhone] = useState<string>();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [fingerprint, setFingerprint] = useState<string | null>(null);
   const [showThankYou, setShowThankYou] = useState(false);
   const [selectedNominee, setSelectedNominee] = useState<Nominee | null>(null);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
 
   const selected = category.nominees.find((n) => n._id === nomineeId);
 
-  useEffect(() => {
-    FingerprintJS.load()
-      .then((fp) => fp.get())
-      .then((result) => setFingerprint(result.visitorId))
-      .catch(() => setFingerprint(null));
-  }, []);
-
+  // Reset modal state when closed
   useEffect(() => {
     if (!isOpen) {
       setNomineeId("");
@@ -83,8 +74,6 @@ export default function VotingModal({
     if (!phone) return setError("Please enter your phone number.");
     if (!isValidPhoneNumber(phone))
       return setError("Please enter a valid international phone number.");
-    if (!fingerprint)
-      return setError("Unable to verify your device. Refresh and try again.");
 
     setLoading(true);
 
@@ -96,7 +85,6 @@ export default function VotingModal({
           phone,
           nomineeId,
           categoryId: category._id,
-          fingerprint,
         }),
       });
 

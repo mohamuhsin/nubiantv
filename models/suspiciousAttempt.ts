@@ -4,11 +4,9 @@ export interface ISuspiciousAttempt extends Document {
   ip?: string;
   phone?: string;
   category?: mongoose.Types.ObjectId;
-  fingerprint?: string;
   userAgent?: string;
   reason: string;
   createdAt: Date;
-  updatedAt?: Date;
 }
 
 const suspiciousAttemptSchema = new Schema<ISuspiciousAttempt>(
@@ -16,7 +14,6 @@ const suspiciousAttemptSchema = new Schema<ISuspiciousAttempt>(
     ip: { type: String },
     phone: { type: String },
     category: { type: Schema.Types.ObjectId, ref: "Category" },
-    fingerprint: { type: String },
     userAgent: { type: String },
     reason: { type: String, required: true },
   },

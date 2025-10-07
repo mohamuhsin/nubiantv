@@ -10,7 +10,6 @@ interface VoteRequestBody {
   phone: string;
   nomineeId: string;
   categoryId: string;
-  fingerprint?: string;
   userAgent?: string;
 }
 
@@ -25,7 +24,7 @@ export async function POST(req: NextRequest) {
     "unknown";
 
   const body: VoteRequestBody = await req.json();
-  const { phone, nomineeId, categoryId, fingerprint, userAgent } = body;
+  const { phone, nomineeId, categoryId, userAgent } = body;
 
   if (!phone || !nomineeId || !categoryId) {
     return NextResponse.json(
@@ -44,15 +43,6 @@ export async function POST(req: NextRequest) {
   }
   const e164Phone = phoneNumber.number; // e.g. +256701234567
 
-  // ✅ Clean fingerprint to avoid "undefined"/"null" strings
-  const safeFingerprint =
-    fingerprint &&
-    fingerprint !== "undefined" &&
-    fingerprint !== "null" &&
-    fingerprint.trim() !== ""
-      ? fingerprint
-      : undefined;
-
   // ✅ Rate limit by IP + phone
   if (rateLimiter) {
     try {
@@ -62,7 +52,6 @@ export async function POST(req: NextRequest) {
         ip,
         phone: e164Phone,
         category: categoryId,
-        fingerprint: safeFingerprint,
         userAgent,
         reason: "Rate limit exceeded",
       });
@@ -74,10 +63,10 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    // ✅ Soft duplicate check (by phone OR fingerprint)
+    // ✅ Soft check (for safety, even with unique index)
     const existingVote = await Vote.findOne({
+      phone: e164Phone,
       category: categoryId,
-      $or: [{ phone: e164Phone }, { fingerprint: safeFingerprint }],
     });
 
     if (existingVote) {
@@ -87,12 +76,11 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // ✅ Create the new vote
+    // ✅ Create new vote
     const vote = await Vote.create({
       phone: e164Phone,
       nominee: nomineeId,
       category: categoryId,
-      fingerprint: safeFingerprint,
       ip,
       userAgent,
     });
@@ -104,7 +92,7 @@ export async function POST(req: NextRequest) {
   } catch (err: any) {
     console.error("❌ Vote submission error:", err);
 
-    // MongoDB duplicate key safeguard (shouldn’t occur now)
+    // Database duplicate safeguard
     if (err.code === 11000) {
       return NextResponse.json(
         { error: "You have already voted in this category" },
