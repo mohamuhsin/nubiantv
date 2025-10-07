@@ -1,7 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-// app/api/submit-vote/route.ts (or wherever your route lives)
 import { NextRequest, NextResponse } from "next/server";
-import { randomUUID } from "crypto";
+import { randomUUID, createHmac } from "crypto";
 import { connectDB } from "@/lib/db";
 import Vote from "@/models/votes";
 import SuspiciousAttempt from "@/models/suspiciousAttempt";
@@ -12,14 +11,17 @@ interface VoteRequestBody {
   phone: string;
   nomineeId: string;
   categoryId: string;
-  deviceHash?: string;
+  deviceHash?: string; // client-sent fingerprint
   userAgent?: string;
 }
 
 const rateLimiter = getRateLimiter("rl_votes", 30, 60);
+const COOKIE_MAX_AGE = 20 * 24 * 60 * 60; // 20 days in seconds
+const DEVICE_HMAC_KEY = process.env.DEVICE_HMAC_KEY || "replace-this-secret";
 
-// 20 days in seconds
-const COOKIE_MAX_AGE = 20 * 24 * 60 * 60; // 1,728,000
+function hmacFingerprint(clientHash: string): string {
+  return createHmac("sha256", DEVICE_HMAC_KEY).update(clientHash).digest("hex");
+}
 
 export async function POST(req: NextRequest) {
   await connectDB();
@@ -39,7 +41,7 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  // Validate and normalize phone number (always +256 format)
+  // ✅ Normalize phone number
   const phoneNumber = parsePhoneNumberFromString(phone, "UG");
   if (!phoneNumber?.isValid()) {
     return NextResponse.json(
@@ -49,19 +51,18 @@ export async function POST(req: NextRequest) {
   }
   const e164Phone = phoneNumber.number; // e.g. +256701234567
 
-  // sanitize deviceHash (trim + limit length)
+  // ✅ Sanitize & re-hash fingerprint
   const cleanedDeviceHash =
     typeof deviceHash === "string" && deviceHash.trim() !== ""
-      ? deviceHash.trim().slice(0, 128)
+      ? hmacFingerprint(deviceHash.trim().slice(0, 128))
       : undefined;
 
-  // sanitize userAgent (optional)
   const cleanedUserAgent =
     typeof userAgent === "string" && userAgent.trim() !== ""
       ? userAgent.trim().slice(0, 512)
       : req.headers.get("user-agent") ?? undefined;
 
-  // Rate limit by IP + phone
+  // ✅ Rate limiting
   if (rateLimiter) {
     try {
       await rateLimiter.consume(`${ip}:${e164Phone}`);
@@ -82,12 +83,11 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    // Soft check (for safety, even with unique index)
+    // 🧠 1️⃣ Prevent duplicate phone votes
     const existingVote = await Vote.findOne({
       phone: e164Phone,
       category: categoryId,
     });
-
     if (existingVote) {
       return NextResponse.json(
         { error: "You have already voted in this category" },
@@ -95,17 +95,37 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // DEVICE SESSION: read existing cookie if present
-    const existingDeviceSession = req.cookies.get("device_session")?.value;
+    // 🧠 2️⃣ Prevent duplicate device votes (by fingerprint)
+    if (cleanedDeviceHash) {
+      const existingDeviceVote = await Vote.findOne({
+        deviceHash: cleanedDeviceHash,
+        category: categoryId,
+      });
 
-    // If cookie present, enforce device-session uniqueness (DB will also enforce via index)
+      if (existingDeviceVote) {
+        await SuspiciousAttempt.create({
+          ip,
+          phone: e164Phone,
+          category: categoryId,
+          deviceHash: cleanedDeviceHash,
+          userAgent: cleanedUserAgent,
+          reason: "Fingerprint already voted",
+        });
+        return NextResponse.json(
+          { error: "This device has already voted in this category" },
+          { status: 409 }
+        );
+      }
+    }
+
+    // 🧠 3️⃣ Device session (cookie) check
+    const existingDeviceSession = req.cookies.get("device_session")?.value;
     if (existingDeviceSession) {
-      const existingByDevice = await Vote.findOne({
+      const existingBySession = await Vote.findOne({
         deviceSession: existingDeviceSession,
         category: categoryId,
       });
-      if (existingByDevice) {
-        // Log suspicious attempt and reject
+      if (existingBySession) {
         await SuspiciousAttempt.create({
           ip,
           phone: e164Phone,
@@ -114,7 +134,6 @@ export async function POST(req: NextRequest) {
           userAgent: cleanedUserAgent,
           reason: "Device session already voted",
         });
-
         return NextResponse.json(
           { error: "This device has already voted in this category" },
           { status: 409 }
@@ -122,10 +141,10 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // generate or reuse deviceSession token (we'll set cookie in response)
+    // ✅ Generate/reuse session token
     const deviceSession = existingDeviceSession || randomUUID();
 
-    // Create new vote and save deviceSession + deviceHash for correlation
+    // ✅ Save the vote
     const vote = await Vote.create({
       phone: e164Phone,
       nominee: nomineeId,
@@ -136,7 +155,7 @@ export async function POST(req: NextRequest) {
       userAgent: cleanedUserAgent,
     });
 
-    // Build response and set device_session cookie (HttpOnly) for 20 days
+    // ✅ Return success + session cookie
     const res = NextResponse.json(
       { success: true, voteId: vote._id },
       { status: 200 }
@@ -150,21 +169,12 @@ export async function POST(req: NextRequest) {
     });
 
     return res;
-  } catch (err: unknown) {
+  } catch (err: any) {
     console.error("❌ Vote submission error:", err);
 
-    const e = err as any;
-
-    // Database duplicate safeguard (covers race conditions / index conflicts)
-    // Could be phone+category or deviceSession+category unique index error
-    if (e?.code === 11000) {
-      console.warn(
-        "Duplicate key error on vote insert:",
-        e.keyValue || e.keyPattern || e
-      );
-      // Try to provide a helpful message depending on index key (best-effort)
-      const key = e.keyValue || {};
-      if (key.deviceSession) {
+    if (err?.code === 11000) {
+      const key = err.keyValue || {};
+      if (key.deviceSession || key.deviceHash) {
         return NextResponse.json(
           { error: "This device has already voted in this category" },
           { status: 409 }
