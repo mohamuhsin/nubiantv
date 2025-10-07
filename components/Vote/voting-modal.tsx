@@ -22,6 +22,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { generateDeviceFingerprint } from "@/lib/deviceFingerprint";
 
 interface Nominee {
   _id: string;
@@ -55,7 +56,7 @@ export default function VotingModal({
 
   const selected = category.nominees.find((n) => n._id === nomineeId);
 
-  // Reset modal state when closed
+  // Reset modal when closed
   useEffect(() => {
     if (!isOpen) {
       setNomineeId("");
@@ -78,6 +79,9 @@ export default function VotingModal({
     setLoading(true);
 
     try {
+      // Generate persistent unique fingerprint for this browser/device
+      const deviceHash = await generateDeviceFingerprint();
+
       const res = await fetch("/api/submit-vote", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -85,6 +89,7 @@ export default function VotingModal({
           phone,
           nomineeId,
           categoryId: category._id,
+          deviceHash,
         }),
       });
 
@@ -93,10 +98,12 @@ export default function VotingModal({
       if (res.ok) {
         if (!selected)
           return setError("Selected nominee not found. Please try again.");
+
         toast.success("You voted successfully!");
         setSelectedNominee(selected);
         setShowThankYou(true);
 
+        // Auto-close modal after 10s
         if (timerRef.current) clearTimeout(timerRef.current);
         timerRef.current = setTimeout(() => {
           setShowThankYou(false);
@@ -107,7 +114,7 @@ export default function VotingModal({
       }
     } catch (err) {
       console.error("Vote submit error:", err);
-      setError("An error occurred. Please try again.");
+      setError("An unexpected error occurred. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -132,7 +139,7 @@ export default function VotingModal({
               <>
                 {/* Header */}
                 <DialogHeader className="flex flex-col items-center justify-center space-y-4 w-full text-center">
-                  <DialogTitle className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold text-gray-900 w-full text-center leading-tight">
+                  <DialogTitle className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold text-gray-900 leading-tight">
                     Vote in {category.name}
                   </DialogTitle>
                 </DialogHeader>
@@ -177,11 +184,12 @@ export default function VotingModal({
                 {/* Submit button */}
                 <Button
                   onClick={handleSubmit}
+                  disabled={loading}
                   className={cn(
                     "mt-8 w-full sm:w-4/5 md:w-3/5 lg:w-2/5 px-6 py-4 font-semibold text-white rounded-xl",
-                    "bg-[#ff7d1d] hover:bg-[#e66c00] transition-all duration-300 text-lg shadow-md hover:shadow-lg"
+                    "bg-[#ff7d1d] hover:bg-[#e66c00] transition-all duration-300 text-lg shadow-md hover:shadow-lg",
+                    loading && "opacity-70 cursor-not-allowed"
                   )}
-                  disabled={loading}
                 >
                   {loading ? "Submitting Vote..." : "Submit Vote"}
                 </Button>

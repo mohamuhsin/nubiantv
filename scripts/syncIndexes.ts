@@ -1,4 +1,10 @@
-// scripts/syncIndexes.ts
+/**
+ * Sync MongoDB indexes for all models.
+ * ------------------------------------
+ * Run with:  npx tsx scripts/syncIndexes.ts
+ * Ensures that MongoDB indexes match your current schema definitions.
+ */
+
 import path from "path";
 import mongoose from "mongoose";
 import dotenv from "dotenv";
@@ -6,12 +12,11 @@ import dotenv from "dotenv";
 // ✅ Load environment variables early
 dotenv.config({ path: path.resolve(process.cwd(), ".env.local") });
 
-// ⚠️ Import after dotenv so env vars are available
+// ⚙️ Import after dotenv so env vars are loaded
 import Vote from "@/models/votes";
 
 async function main(): Promise<void> {
-  const mongoUri: string | undefined =
-    process.env.MONGODB_URL || process.env.MONGODB_URI;
+  const mongoUri = process.env.MONGODB_URL || process.env.MONGODB_URI;
 
   if (!mongoUri) {
     console.error(
@@ -27,19 +32,17 @@ async function main(): Promise<void> {
       mongoUri.replace(/\/\/.*@/, "//<credentials>@")
     );
 
-    // ✅ Type-safe connect (mongoUri is guaranteed string now)
     await mongoose.connect(mongoUri);
-
     console.log("✅ Connected successfully");
-    console.log("🔄 Syncing indexes for Vote model...");
 
-    // ⚙️ syncIndexes(): Drops old, adds new indexes per schema
+    console.log("🔄 Syncing indexes for Vote model...");
     const result = await Vote.syncIndexes();
     console.log("✅ Indexes synced successfully!");
-    console.log(result);
+    if (result) console.log(result);
 
-    // 📋 Display active indexes in a clean table
+    // 📋 Show all active indexes
     const indexes = await Vote.collection.indexes();
+    console.log("\n📊 Active Indexes:");
     console.table(
       indexes.map((i) => ({
         name: i.name,
@@ -50,6 +53,7 @@ async function main(): Promise<void> {
 
     await mongoose.disconnect();
     console.log("🔌 Disconnected from MongoDB");
+    process.exit(0);
   } catch (error) {
     console.error("❌ Error syncing indexes:", error);
     await mongoose.disconnect();

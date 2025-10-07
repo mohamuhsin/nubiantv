@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import mongoose, { Document, Schema } from "mongoose";
 
 export interface IVote extends Document {
@@ -6,9 +5,9 @@ export interface IVote extends Document {
   nominee: mongoose.Types.ObjectId;
   category: mongoose.Types.ObjectId;
 
-  // device/session fields
-  deviceSession?: string; // server-set HttpOnly cookie token
-  deviceHash?: string; // lightweight device heuristic (optional)
+  // Device / session identifiers
+  deviceSession?: string; // Server-set HttpOnly cookie token
+  deviceHash?: string; // Unique hashed fingerprint per browser/device
 
   ip?: string;
   userAgent?: string;
@@ -16,15 +15,14 @@ export interface IVote extends Document {
   updatedAt: Date;
 }
 
-const voteSchema = new Schema<IVote>(
+const VoteSchema = new Schema<IVote>(
   {
     phone: { type: String, required: true },
     nominee: { type: Schema.Types.ObjectId, ref: "Nominee", required: true },
     category: { type: Schema.Types.ObjectId, ref: "Category", required: true },
 
-    // Device/session fields
     deviceSession: { type: String, index: true },
-    deviceHash: { type: String },
+    deviceHash: { type: String, index: true },
 
     ip: { type: String },
     userAgent: { type: String },
@@ -32,51 +30,45 @@ const voteSchema = new Schema<IVote>(
   { timestamps: true }
 );
 
-// === Indexes ===
-// One vote per phone per category (primary rule)
-voteSchema.index({ phone: 1, category: 1 }, { unique: true });
-
-// Enforce one vote per deviceSession per category (applies only when deviceSession exists)
-voteSchema.index(
+/**
+ * 📦 Indexes
+ * -----------------------------
+ * 1️⃣ One vote per phone per category (main rule)
+ * 2️⃣ One vote per device session per category
+ * 3️⃣ One vote per device fingerprint per category
+ * 4️⃣ Performance indexes for frequent queries
+ */
+VoteSchema.index({ phone: 1, category: 1 }, { unique: true });
+VoteSchema.index(
   { deviceSession: 1, category: 1 },
   { unique: true, sparse: true }
 );
+VoteSchema.index(
+  { deviceHash: 1, category: 1 },
+  { unique: true, sparse: true }
+);
+VoteSchema.index({ category: 1 });
+VoteSchema.index({ createdAt: -1 });
+VoteSchema.index({ phone: 1 });
 
-// For quick device-based correlation (non-unique)
-voteSchema.index({ deviceHash: 1, category: 1 });
-
-// Optional: speed up queries
-voteSchema.index({ category: 1 });
-voteSchema.index({ createdAt: -1 });
-voteSchema.index({ phone: 1 });
-
-// Cleaner handling of blank strings for optional fields
-voteSchema.pre("save", function (next) {
-  // Use `this` as plain object here (Mongoose Document)
-  const doc = this as IVote & { [k: string]: any };
+/**
+ * 🧹 Pre-save cleanup
+ * Ensures empty or invalid optional fields are stored as undefined.
+ */
+VoteSchema.pre("save", function (next) {
+  const doc = this as IVote;
 
   if (
     !doc.deviceSession ||
-    doc.deviceSession === "undefined" ||
-    doc.deviceSession === "null" ||
-    (typeof doc.deviceSession === "string" && doc.deviceSession.trim() === "")
-  ) {
+    ["undefined", "null", ""].includes(doc.deviceSession)
+  )
     doc.deviceSession = undefined;
-  }
 
-  if (
-    !doc.deviceHash ||
-    doc.deviceHash === "undefined" ||
-    doc.deviceHash === "null" ||
-    (typeof doc.deviceHash === "string" && doc.deviceHash.trim() === "")
-  ) {
+  if (!doc.deviceHash || ["undefined", "null", ""].includes(doc.deviceHash))
     doc.deviceHash = undefined;
-  }
 
   next();
 });
 
-// Model creation (avoid recompiling in dev)
-const Vote = mongoose.models.Vote || mongoose.model<IVote>("Vote", voteSchema);
-
-export default Vote;
+export default mongoose.models.Vote ||
+  mongoose.model<IVote>("Vote", VoteSchema);
