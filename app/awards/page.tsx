@@ -21,7 +21,7 @@ export default function AwardsPage() {
       />
 
       {/* Main Content */}
-      <main className="flex-grow w-full flex flex-col items-center justify-center text-center py-20">
+      <main className="flex-grow w-full">
         {/* Categories Section */}
         <section
           aria-labelledby="categories-heading"
