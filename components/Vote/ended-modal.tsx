@@ -19,8 +19,6 @@ export default function EndedModal() {
           <span className="text-[#ff7d1d] font-semibold">🎉 Thank you!</span>
         </DialogDescription>
       </DialogHeader>
-
-      <div className="flex flex-col items-center justify-center gap-4 sm:gap-6 py-6 w-full"></div>
     </DialogContent>
   );
 }
