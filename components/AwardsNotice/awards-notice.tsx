@@ -71,7 +71,7 @@ export function AwardNotice() {
               Nubian TV Awards 2025
             </AlertTitle>
             <AlertDescription className="text-sm sm:text-base">
-              Ends on <strong>15 October 2025</strong> —{" "}
+              Ends on <strong>08th October 2025</strong> —{" "}
               <span className="font-mono font-bold text-base sm:text-lg whitespace-nowrap">
                 {days}d {hours}h {minutes}m {seconds}s
               </span>
