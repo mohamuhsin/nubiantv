@@ -16,7 +16,7 @@ export default function EndedModal() {
         </DialogTitle>
         <DialogDescription className="text-sm sm:text-base md:text-lg text-muted-foreground">
           <span className="text-[#ff7d1d] font-semibold">
-            🎉 Thank you for voting!
+            Thank you for voting! 🎉
           </span>
         </DialogDescription>
       </DialogHeader>
