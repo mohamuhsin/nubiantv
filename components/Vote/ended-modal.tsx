@@ -15,8 +15,9 @@ export default function EndedModal() {
           Voting Ended
         </DialogTitle>
         <DialogDescription className="text-sm sm:text-base md:text-lg text-muted-foreground">
-          Voting has ended.{" "}
-          <span className="text-[#ff7d1d] font-semibold">🎉 Thank you!</span>
+          <span className="text-[#ff7d1d] font-semibold">
+            🎉 Thank you for voting!
+          </span>
         </DialogDescription>
       </DialogHeader>
     </DialogContent>
