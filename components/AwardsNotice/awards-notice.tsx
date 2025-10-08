@@ -41,7 +41,7 @@ function useCountdown(targetDate: Date) {
 
 export function AwardNotice() {
   const [visible, setVisible] = useState(true);
-  const targetDate = new Date("2025-10-15T23:59:59");
+  const targetDate = new Date("2025-10-08T23:59:59");
   const { days, hours, minutes, seconds, finished } = useCountdown(targetDate);
 
   // ⏱️ Hide after 20 seconds
