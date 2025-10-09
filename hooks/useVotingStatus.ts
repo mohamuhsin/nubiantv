@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 
 // Voting dates in local time
 export const VOTING_START_LOCAL = new Date(2025, 9, 1, 0, 0, 0); // 1 Oct 2025, 00:00 local
-export const VOTING_END_LOCAL = new Date(2025, 9, 8, 23, 59, 59); // 31 Oct 2025, 23:59 local
+export const VOTING_END_LOCAL = new Date(2025, 9, 1, 23, 59, 59); // 31 Oct 2025, 23:59 local
 
 export type VotingStatus = "before" | "during" | "after";
 
