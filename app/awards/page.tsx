@@ -64,7 +64,7 @@ export default function AwardsPage() {
               id="winners-heading"
               className="font-extrabold text-[24px] sm:text-[28px] md:text-[32px] leading-tight text-[oklch(0.21_0.034_264.665)]"
             >
-              NUBIAN TV AWARDS 2025 WINNERS
+              AWARD WINNERS 2025
             </h2>
             <p className="mt-3 text-sm sm:text-base text-gray-600 dark:text-gray-400">
               Meet the champions who made it to the top.
