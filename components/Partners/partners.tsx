@@ -5,6 +5,7 @@ import { ReusableButton } from "../Navbar/donate";
 
 export default function PartnersSection() {
   const partners = [
+    "/partners/kakande.png",
     "/partners/devon.png",
     "/partners/nidat.png",
     "/partners/empathy.png",
